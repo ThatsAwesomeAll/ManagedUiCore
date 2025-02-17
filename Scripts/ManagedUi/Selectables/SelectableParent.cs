@@ -1,4 +1,5 @@
 using PrimeTween;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -20,8 +21,8 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     [Header("Grid Settings")]
     public bool _gridFixed = false;
 
-    [SerializeField] private UiSettings _manager;
-
+    public Action<SelectableParent> OnSelected;
+    public Action<SelectableParent> OnConfirmed;
 
     ISelectableManager _selectableManager;
     RectTransform _rectTransform;
@@ -34,10 +35,6 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     public Vector2 AnchoredPosition => _rectTransform.position;
     public Vector2 Size => new Vector2(_rectTransform.rect.width, _rectTransform.rect.height);
 
-    void SetUpSettings()
-    {
-        if (!_manager) _manager = UiSettings.GetSettings();
-    }
 
     private void Awake()
     {
@@ -63,6 +60,10 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         }
         _selected = selected;
         AnimateSelect(_selected);
+        if (_selected)
+        {
+            OnSelected?.Invoke(this);
+        }
     }
 
     public bool Confirmed => _confirmed;
@@ -72,6 +73,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         if (_confirmed)
         {
             AnimateConfirm();
+            OnConfirmed?.Invoke(this);
         }
     }
 
@@ -182,6 +184,12 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     public void OnPointerExit(PointerEventData eventData)
     {
         // OnDeselect(eventData);
+    }
+    
+    [SerializeField] private UiSettings _manager;
+    void SetUpSettings()
+    {
+        if (!_manager) _manager = UiSettings.GetSettings();
     }
 }
 

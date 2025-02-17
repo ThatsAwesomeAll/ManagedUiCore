@@ -144,18 +144,18 @@ public class Card : MonoBehaviour
         }
     }
    
-    private TextMeshProUGUI CreateText(string name, string defaultText, UiSettings.TextStyle style)
+    private TextMeshProUGUI CreateText(string textName, string defaultText, UiSettings.TextStyle style)
     {
-        var textChild = new GameObject(name);
+        var textChild = new GameObject(textName);
         textChild.transform.SetParent(_background.transform, false);
         var text = textChild.AddComponent<TextMeshProUGUI>();
         text.text = defaultText;
         _manager.SetTextAutoFormat(text, style, UiSettings.ColorName.Dark);
         return text;
     }
-    private ManagedImage CreateImage(string name, Transform parent)
+    private ManagedImage CreateImage(string imageName, Transform parent)
     {
-        var textChild = new GameObject(name);
+        var textChild = new GameObject(imageName);
         textChild.transform.SetParent(parent, false);
         return textChild.AddComponent<ManagedImage>();
     }

@@ -1,5 +1,8 @@
+using ManagedUi.GridSystem;
+using ManagedUi.Selectables;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem.HID;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,11 +13,17 @@ namespace ManagedUi.Widgets
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(ManagedImage))]
-public class SimpleButton : MonoBehaviour
+[RequireComponent(typeof(SelectableParent))]
+public class SimpleButton : MonoBehaviour, IGridElement
 {
 
     public string _buttonText = "No TEXT";
+    public bool getTextFromName = true;
     public bool autoFormat;
+    public int growFactor = 1;
+    
+    private SelectableParent _selectable;
+    public SelectableParent Selectable => _selectable;
     private ManagedImage _image;
     private TextMeshProUGUI _text;
 
@@ -43,6 +52,12 @@ public class SimpleButton : MonoBehaviour
             textChild.transform.SetParent(transform, false);
             _text = textChild.AddComponent<TextMeshProUGUI>();
         }
+        if (getTextFromName)
+        {
+            _buttonText = name;
+        }
+        _selectable = GetComponent<SelectableParent>();
+        SetText();
     }
 
     private void SetText()
@@ -60,6 +75,9 @@ public class SimpleButton : MonoBehaviour
         if (!_manager) _manager = UiSettings.GetSettings();
     }
 
+    public int VerticalLayoutGrowth() => growFactor;
+    public int HorizontalLayoutGrowth() => growFactor;
+    public bool IgnoreLayout() => false;
 }
 
 #if UNITY_EDITOR
@@ -98,11 +116,13 @@ public class SimpleButton : MonoBehaviour
             var UIManagerAsset = serializedObject.FindProperty("_manager");
             var buttonText = serializedObject.FindProperty("_buttonText");
             var autoFormat = serializedObject.FindProperty("autoFormat");
-            var image = serializedObject.FindProperty("_image");
+            var getTextFromName = serializedObject.FindProperty("getTextFromName");
+            var growFactor = serializedObject.FindProperty("growFactor");
 
             DrawProperty(buttonText, "Text", "Button Text");
+            DrawProperty(getTextFromName, "Text From Name", "Enables retrieving text from object name");
             DrawProperty(autoFormat, "Auto Format", "Enable Formating form Settings");
-            DrawProperty(image, "Image", "Background Image");
+            DrawProperty(growFactor, "GrowLayout", "Grow in flexible layout");
             
 
             if (UIManagerAsset != null)

@@ -25,7 +25,6 @@ public class TabManager : MonoBehaviour
     private void SetupTabHeader()
     {
         header ??= GetComponentInChildren<TabHeader>();
-        header.SetupSize(100f);
         if (header != null)
         {
             return;
@@ -34,7 +33,6 @@ public class TabManager : MonoBehaviour
         headerChild.transform.SetParent(transform, false);
         header = headerChild.AddComponent<TabHeader>();
         header.transform.SetAsFirstSibling();
-        header.SetupSize(100f);
     }
 
 }

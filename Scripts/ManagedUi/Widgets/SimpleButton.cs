@@ -21,6 +21,7 @@ public class SimpleButton : MonoBehaviour, IGridElement
     public bool getTextFromName = true;
     public bool autoFormat;
     public int growFactor = 1;
+    public ManagedImage Image => _image;
     
     private SelectableParent _selectable;
     public SelectableParent Selectable => _selectable;

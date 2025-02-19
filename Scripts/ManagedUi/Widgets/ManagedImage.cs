@@ -60,6 +60,14 @@ namespace ManagedUi.Widgets
         {
             color = colorTypeColorValue;
         }
+
+        public void SetAsDefaultBackground()
+        {
+            fixColor = true;
+            sprite = _manager.DefaultBackgroundImage();
+            type = UnityEngine.UI.Image.Type.Sliced;
+            pixelsPerUnitMultiplier = _manager.DefaultBackgroundImageSliceFactor;
+        }
         
         public int VerticalLayoutGrowth() => growth.y > 0 ? growth.y : 1;
         public int HorizontalLayoutGrowth() => growth.x > 0 ? growth.x : 1;
@@ -97,8 +105,12 @@ namespace ManagedUi.Widgets
             }
             else
             {
+                Color temp = colorType.colorValue;
                 EditorUtils.DrawProperty(colorType, "Color", "Select Color");
-                image.SetColorByFixed(colorType.colorValue);
+                if (temp != colorType.colorValue)
+                {
+                    image.SetColorByFixed(colorType.colorValue);
+                }
             }
             EditorUtils.DrawProperty(growth, "Layout Growth", "Selecte Grow factor for layout group");
 

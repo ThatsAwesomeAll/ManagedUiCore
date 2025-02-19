@@ -1,6 +1,8 @@
 using ManagedUi.GridSystem;
+using ManagedUi.SystemInterfaces;
 using ManagedUi.Widgets;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ManagedUi.TabSystem
@@ -9,20 +11,34 @@ namespace ManagedUi.TabSystem
 [ExecuteInEditMode]
 [RequireComponent(typeof(GrowGridLayout))]
 [RequireComponent(typeof(RectTransform))]
+[RequireComponent(typeof(GridSelection))]
+[RequireComponent(typeof(UiInputManager))]
 public class TabContentContainer : MonoBehaviour
 {
     private const string C_contentName = "Content";
     const string C_tabHeaderName = "TabHeader";
- 
+
     private GrowGridLayout _layout;
     private RectTransform _rectTransform;
-    
+
     [SerializeField] RectTransform _content;
     [SerializeField] TabHeader _header;
+    private GridSelection _gridSelection;
+    private ManagedTab currentTab;
     public TabHeader Header => _header;
 
 
     private void OnEnable()
+    {
+        SetUpRectTransform();
+        SetupGridLayout();
+        SetupContent();
+        SetupTabHeader();
+
+        _gridSelection = GetComponent<GridSelection>();
+    }
+
+    private void SetUpRectTransform()
     {
         if (!_rectTransform)
         {
@@ -33,16 +49,15 @@ public class TabContentContainer : MonoBehaviour
             _rectTransform.offsetMin = Vector2.zero;
             _rectTransform.offsetMax = Vector2.zero;
         }
-
+    }
+    private void SetupGridLayout()
+    {
         if (!_layout)
         {
             _layout = GetComponent<GrowGridLayout>();
             _layout.direction = GrowGridLayout.GrowDirection.Rows;
+            _layout.spacing = new Vector2(0, 10);
         }
-
-        SetupContent();
-        SetupTabHeader();
-            
     }
 
     private void SetupContent()
@@ -52,7 +67,7 @@ public class TabContentContainer : MonoBehaviour
             for (int i = 0; i < _rectTransform.childCount; i++)
             {
                 var child = _rectTransform.GetChild(i);
-                if (child.name == "Content")
+                if (child.name == C_contentName)
                 {
                     _content = child as RectTransform;
                 }
@@ -61,10 +76,10 @@ public class TabContentContainer : MonoBehaviour
             {
                 var buttonChild = new GameObject(C_contentName);
                 buttonChild.transform.SetParent(transform, false);
-                var button = buttonChild.AddComponent<ManagedImage>();
-                button.colorTheme = UiSettings.ColorName.Dark;
-                button.fixColor = true;
-                button.growth = new Vector2Int(10, 10);
+                var backgroundImage = buttonChild.AddComponent<ManagedImage>();
+                backgroundImage.colorTheme = UiSettings.ColorName.Dark;
+                backgroundImage.growth = new Vector2Int(10, 10);
+                backgroundImage.SetAsDefaultBackground();
             }
         }
     }
@@ -81,5 +96,20 @@ public class TabContentContainer : MonoBehaviour
         _header.transform.SetAsFirstSibling();
     }
 
+    public void SetHeader(List<ManagedTab> tabContainerTabs)
+    {
+        _header.ClearTabs();
+        foreach (var tab in tabContainerTabs)
+        {
+            _header.AddTab(tab);
+        }
+    }
+    public void ShowContent(ManagedTab tab)
+    {
+        if(currentTab) DestroyImmediate(currentTab.gameObject);
+        currentTab = Instantiate(tab, _content);
+        currentTab.gameObject.SetActive(true);
+        _gridSelection.SetupGrid();
+    }
 }
 }

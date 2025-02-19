@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagedUi.TabSystem
 {
@@ -10,6 +9,7 @@ public class TabManager : MonoBehaviour
     private const string C_contentName = "ContentContainer";
     public TabContentContainer Content;
     private RectTransform _rectTransform;
+    private TabHolder TabContainer;
 
     public void OnEnable()
     {
@@ -28,6 +28,19 @@ public class TabManager : MonoBehaviour
             var buttonChild = new GameObject(C_contentName);
             buttonChild.transform.SetParent(transform, false);
             Content = buttonChild.AddComponent<TabContentContainer>();
+        }
+
+        TabContainer ??= GetComponentInChildren<TabHolder>();
+        if (!TabContainer)
+        {
+            return;
+        }
+        Content.SetHeader(TabContainer.Tabs);
+        ManagedTab tab = TabContainer.GetCurrentTab();
+
+        if (tab)
+        {
+            Content.ShowContent(tab);
         }
     }
 }

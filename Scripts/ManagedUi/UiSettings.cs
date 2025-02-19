@@ -9,6 +9,34 @@ namespace ManagedUi
 public class UiSettings : ScriptableObject
 {
 
+    [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
+    [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
+
+    [Header("Default Image settings")]
+    [SerializeField] Sprite _defaultImage;
+
+    [SerializeField] Sprite _defaultSelectionImage;
+    [SerializeField] private float _defaultSelectionImageSliceFactor = 0.3f;
+
+    [SerializeField] Sprite _defaultBackgroundImage;
+    [SerializeField] private float _defaultBackgroundImageSliceFactor = 0.3f;
+
+    public float DefaultBackgroundImageSliceFactor => _defaultBackgroundImageSliceFactor;
+    public float DefaultSelectionImageSliceFactor => _defaultSelectionImageSliceFactor;
+    public Sprite DefaultImage() => _defaultImage;
+    public Sprite DefaultBackgroundImage() => _defaultBackgroundImage;
+    public Sprite DefaultSelectionImage() => _defaultSelectionImage;
+        
+    [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
+
+
+    public FontStyleSettings FontStyles => DefaultFontStyleSettings;
+
+
+    public Color SelectedColor => ImageColors.ColorAccent;
+    public Color ConfirmedColor => ImageColors.ColorAccentLighter;
+
+
     [ContextMenu("Set Default Colors")]
     public void SetDefaultColor()
     {
@@ -16,12 +44,58 @@ public class UiSettings : ScriptableObject
         TextColors = new ColorTheme(ColorMode.DefaultText);
     }
 
-    public static UiSettings GetSettings()
+    public Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
     {
-        UiSettings matchingAssets = Resources.Load<UiSettings>("ManagedUi/DefaultUiSettings");
-        return matchingAssets;
+        return colorTheme switch
+        {
+            ColorName.Accent => colorPalette.ColorAccent,
+            ColorName.AccentLighter => colorPalette.ColorAccentLighter,
+            ColorName.Main => colorPalette.ColorMain,
+            ColorName.Light => colorPalette.ColorLight,
+            ColorName.Lighter => colorPalette.ColorLighter,
+            ColorName.Dark => colorPalette.ColorDark,
+            ColorName.Darker => colorPalette.ColorDarker,
+            ColorName.Background => colorPalette.ColorBackground,
+            ColorName.BackgroundDarker => colorPalette.ColorBackgroundDarker,
+            _ => Color.black
+        };
+    }
+    public Color GetImageColorByEnum(ColorName colorTheme)
+    {
+        return GetImageColorByEnum(colorTheme, ImageColors);
     }
 
+    private void ScaleRectTrans(RectTransform transform)
+    {
+        transform.anchorMin = new Vector2(0, 0);
+        transform.anchorMax = new Vector2(1, 1);
+        transform.offsetMin = Vector2.zero;
+        transform.offsetMax = Vector2.zero;
+        transform.anchoredPosition = new Vector2(0, 0);
+        transform.pivot = new Vector2(0.5f, 0.5f);
+    }
+
+
+    public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style, ColorName background)
+    {
+        text.color = GetImageColorByEnum(background, TextColors);
+        ScaleRectTrans(text.rectTransform);
+        text.enableAutoSizing = true;
+        var textSize = style switch
+        {
+
+            TextStyle.Header => FontStyles.HeaderStyle.textMinMax,
+            TextStyle.Highlight => FontStyles.HighlightStyle.textMinMax,
+            TextStyle.Text => FontStyles.TextStyle.textMinMax,
+            TextStyle.SubText => FontStyles.SubTextStyle.textMinMax,
+            _ => throw new ArgumentOutOfRangeException(nameof(style), style, null)
+        };
+        text.fontSizeMin = textSize.x;
+        text.fontSizeMax = textSize.y;
+        text.alignment = TextAlignmentOptions.Center;
+    }
+    
+    #region SettingDefinition
     [Serializable]
     public struct FontStyle
     {
@@ -55,7 +129,6 @@ public class UiSettings : ScriptableObject
             SubTextStyle = new FontStyle(new Vector2(10, 30));
         }
     }
-
 
     [Serializable]
     public enum ColorMode
@@ -117,70 +190,13 @@ public class UiSettings : ScriptableObject
         }
     }
 
-    public Color SelectedColor => ImageColors.ColorAccent;
-    public Color ConfirmedColor => ImageColors.ColorAccentLighter;
+    #endregion
 
-    [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
-    [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
 
-    [SerializeField] Sprite _defaultImage;
-    [SerializeField] Sprite _defaultSelectionImage;
-
-    public Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
+    public static UiSettings GetSettings()
     {
-        return colorTheme switch
-        {
-            ColorName.Accent => colorPalette.ColorAccent,
-            ColorName.AccentLighter => colorPalette.ColorAccentLighter,
-            ColorName.Main => colorPalette.ColorMain,
-            ColorName.Light => colorPalette.ColorLight,
-            ColorName.Lighter => colorPalette.ColorLighter,
-            ColorName.Dark => colorPalette.ColorDark,
-            ColorName.Darker => colorPalette.ColorDarker,
-            ColorName.Background => colorPalette.ColorBackground,
-            ColorName.BackgroundDarker => colorPalette.ColorBackgroundDarker,
-            _ => Color.black
-        };
+        UiSettings matchingAssets = Resources.Load<UiSettings>("ManagedUi/DefaultUiSettings");
+        return matchingAssets;
     }
-
-    public Color GetImageColorByEnum(ColorName colorTheme)
-    {
-        return GetImageColorByEnum(colorTheme, ImageColors);
-    }
-
-    private void ScaleRectTrans(RectTransform transform)
-    {
-        transform.anchorMin = new Vector2(0, 0);
-        transform.anchorMax = new Vector2(1, 1);
-        transform.offsetMin = Vector2.zero;
-        transform.offsetMax = Vector2.zero;
-        transform.anchoredPosition = new Vector2(0, 0);
-        transform.pivot = new Vector2(0.5f, 0.5f);
-    }
-
-    [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
-    public FontStyleSettings FontStyles => DefaultFontStyleSettings;
-
-    public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style, ColorName background)
-    {
-        text.color = GetImageColorByEnum(background, TextColors);
-        ScaleRectTrans(text.rectTransform);
-        text.enableAutoSizing = true;
-        var textSize = style switch
-        {
-
-            TextStyle.Header => FontStyles.HeaderStyle.textMinMax,
-            TextStyle.Highlight => FontStyles.HighlightStyle.textMinMax,
-            TextStyle.Text => FontStyles.TextStyle.textMinMax,
-            TextStyle.SubText => FontStyles.SubTextStyle.textMinMax,
-            _ => throw new ArgumentOutOfRangeException(nameof(style), style, null)
-        };
-        text.fontSizeMin = textSize.x;
-        text.fontSizeMax = textSize.y;
-        text.alignment = TextAlignmentOptions.Center;
-    }
-
-    public Sprite DefaultImage() => _defaultImage;
-    public Sprite DefaultSelectionImage() => _defaultSelectionImage;
 }
 }

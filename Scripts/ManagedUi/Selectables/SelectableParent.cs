@@ -164,7 +164,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        _selectableManager.TriggerExternalConfirm(this);
+        _selectableManager?.TriggerExternalConfirm(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -173,12 +173,12 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     }
     public void OnSelect(BaseEventData eventData)
     {
-        _selectableManager.TriggerExternalSelect(this);
+        _selectableManager?.TriggerExternalSelect(this);
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
-        _selectableManager.TriggerExternalDeSelect(this);
+        _selectableManager?.TriggerExternalDeSelect(this);
     }
 
     public void OnPointerExit(PointerEventData eventData)

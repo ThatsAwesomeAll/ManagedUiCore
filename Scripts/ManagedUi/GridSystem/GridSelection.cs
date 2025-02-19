@@ -53,6 +53,11 @@ public class GridSelection : MonoBehaviour, ISelectableManager
 
     public void OnEnable()
     {
+        SetupGrid();
+    }
+
+    public void SetupGrid()
+    {
         _selectables = GetComponentsInChildren<SelectableParent>();
         if (inputManager != null)
         {
@@ -84,7 +89,6 @@ public class GridSelection : MonoBehaviour, ISelectableManager
         }
 
         StartCoroutine(SetUp());
-
     }
 
     IEnumerator SetUp()

@@ -51,7 +51,7 @@ public class SimpleButton : MonoBehaviour, IGridElement
         {
             _image = GetComponent<ManagedImage>();
             _image.colorTheme = UiSettings.ColorName.Main;
-            _image.fixColor = true;
+            _image.SetAsDefaultBackground();
         }
         _text ??= GetComponentInChildren<TextMeshProUGUI>();
         if (!_text)

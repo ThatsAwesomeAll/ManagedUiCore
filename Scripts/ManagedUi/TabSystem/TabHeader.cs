@@ -46,8 +46,8 @@ public class TabHeader : MonoBehaviour
         if (_image) return;
 
         _image = GetComponent<ManagedImage>();
-        _image.fixColor = true;
-        _image.colorTheme = UiSettings.ColorName.Light;
+        _image.colorTheme = UiSettings.ColorName.Lighter;
+        _image.SetAsDefaultBackground();
     }
 
     private void SetupSize(float height)
@@ -106,11 +106,25 @@ public class TabHeader : MonoBehaviour
         buttonChild.transform.SetParent(transform, false);
         var button = buttonChild.AddComponent<SimpleButton>();
         button.getTextFromName = false;
-        button.Image.SetColorByTheme(UiSettings.ColorName.Darker);
+        button.Image.fixColor = true;
+        button.Image.colorTheme = UiSettings.ColorName.Light;
         button.ButtonText = defaultText;
         return button;
     }
 
 
+    public void AddTab(ManagedTab tab)
+    {
+        var button = CreateControlButton(tab.Title, tab.Title);
+        button.Image.colorTheme = UiSettings.ColorName.Main;
+        button.transform.SetSiblingIndex(tab.OrderIndex);
+        _right.transform.SetAsLastSibling();
+        _left.transform.SetAsFirstSibling();
+    }
+    public void ClearTabs()
+    {
+        while ( transform.childCount>0) DestroyImmediate(transform.GetChild(0).gameObject);
+        SetUpControlButton();
+    }
 }
 }

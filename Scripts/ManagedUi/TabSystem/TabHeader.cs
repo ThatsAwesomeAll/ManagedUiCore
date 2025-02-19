@@ -106,7 +106,7 @@ public class TabHeader : MonoBehaviour
         buttonChild.transform.SetParent(transform, false);
         var button = buttonChild.AddComponent<SimpleButton>();
         button.getTextFromName = false;
-        button.Image.SetColorByTheme(UiSettings.ColorName.Dark);
+        button.Image.SetColorByTheme(UiSettings.ColorName.Darker);
         button.ButtonText = defaultText;
         return button;
     }

@@ -23,6 +23,41 @@ public class UiSettings : ScriptableObject
     }
 
     [Serializable]
+    public struct FontStyle
+    {
+        public FontStyle(Vector2 text)
+        {
+            textMinMax = text;
+        }
+        public Vector2 textMinMax;
+    }
+
+    public enum TextStyle
+    {
+        Header,
+        Highlight,
+        Text,
+        SubText
+    }
+
+    [Serializable]
+    public struct FontStyleSettings
+    {
+        public FontStyle HeaderStyle;
+        public FontStyle HighlightStyle;
+        public FontStyle TextStyle;
+        public FontStyle SubTextStyle;
+        public FontStyleSettings(bool dummy)
+        {
+            HeaderStyle = new FontStyle(new Vector2(30, 100));
+            HighlightStyle = new FontStyle(new Vector2(30, 80));
+            TextStyle = new FontStyle(new Vector2(20, 40));
+            SubTextStyle = new FontStyle(new Vector2(10, 30));
+        }
+    }
+
+
+    [Serializable]
     public enum ColorMode
     {
         Default,
@@ -87,7 +122,7 @@ public class UiSettings : ScriptableObject
 
     [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
     [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
-    
+
     [SerializeField] Sprite _defaultImage;
     [SerializeField] Sprite _defaultSelectionImage;
 
@@ -113,21 +148,18 @@ public class UiSettings : ScriptableObject
         return GetImageColorByEnum(colorTheme, ImageColors);
     }
 
-    public enum TextStyle
-    {
-        Header,
-        Highlight,
-        Text,
-        SubText
-    }
-
     private void ScaleRectTrans(RectTransform transform)
     {
         transform.anchorMin = new Vector2(0, 0);
         transform.anchorMax = new Vector2(1, 1);
+        transform.offsetMin = Vector2.zero;
+        transform.offsetMax = Vector2.zero;
         transform.anchoredPosition = new Vector2(0, 0);
         transform.pivot = new Vector2(0.5f, 0.5f);
     }
+
+    [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
+    public FontStyleSettings FontStyles => DefaultFontStyleSettings;
 
     public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style, ColorName background)
     {
@@ -137,10 +169,10 @@ public class UiSettings : ScriptableObject
         var textSize = style switch
         {
 
-            TextStyle.Header => new Vector2(30, 100),
-            TextStyle.Highlight => new Vector2(30, 80),
-            TextStyle.Text => new Vector2(20, 40),
-            TextStyle.SubText => new Vector2(10, 30),
+            TextStyle.Header => FontStyles.HeaderStyle.textMinMax,
+            TextStyle.Highlight => FontStyles.HighlightStyle.textMinMax,
+            TextStyle.Text => FontStyles.TextStyle.textMinMax,
+            TextStyle.SubText => FontStyles.SubTextStyle.textMinMax,
             _ => throw new ArgumentOutOfRangeException(nameof(style), style, null)
         };
         text.fontSizeMin = textSize.x;

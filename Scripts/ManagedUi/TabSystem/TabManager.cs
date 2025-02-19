@@ -4,36 +4,31 @@ using UnityEngine.Serialization;
 namespace ManagedUi.TabSystem
 {
 [ExecuteInEditMode]
+[RequireComponent(typeof(RectTransform))]
 public class TabManager : MonoBehaviour
 {
-    const string C_tabHeaderName = "TabHeader";
-
-    [SerializeField] TabHeader header;
-    public RectTransform Content;
-    public RectTransform TabHolder;
+    private const string C_contentName = "ContentContainer";
+    public TabContentContainer Content;
+    private RectTransform _rectTransform;
 
     public void OnEnable()
     {
-        SetupTabHeader();
-
-        if (!TabHolder)
+        if (!_rectTransform)
         {
-            return;
+            _rectTransform = GetComponent<RectTransform>();
+            _rectTransform.anchorMax = Vector2.one;
+            _rectTransform.anchorMin = Vector2.zero;
+            _rectTransform.offsetMin = Vector2.zero;
+            _rectTransform.offsetMax = Vector2.zero;            
         }
-        var tabs = TabHolder.GetComponentsInChildren<Tab>();
-    }
-    private void SetupTabHeader()
-    {
-        header ??= GetComponentInChildren<TabHeader>();
-        if (header != null)
+        
+        Content ??= GetComponentInChildren<TabContentContainer>();
+        if (!Content)
         {
-            return;
+            var buttonChild = new GameObject(C_contentName);
+            buttonChild.transform.SetParent(transform, false);
+            Content = buttonChild.AddComponent<TabContentContainer>();
         }
-        var headerChild = new GameObject(C_tabHeaderName);
-        headerChild.transform.SetParent(transform, false);
-        header = headerChild.AddComponent<TabHeader>();
-        header.transform.SetAsFirstSibling();
     }
-
 }
 }

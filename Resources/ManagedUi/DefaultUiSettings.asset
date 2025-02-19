@@ -34,3 +34,12 @@ MonoBehaviour:
     ColorBackgroundDarker: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   _defaultImage: {fileID: -644982902, guid: 2341f142f9c49854cba931c06e84bc48, type: 3}
   _defaultSelectionImage: {fileID: 1887515788, guid: e3526f4fcf44c944f9193b5da545fd34, type: 3}
+  DefaultFontStyleSettings:
+    HeaderStyle:
+      textMinMax: {x: 30, y: 100}
+    HighlightStyle:
+      textMinMax: {x: 30, y: 80}
+    TextStyle:
+      textMinMax: {x: 20, y: 40}
+    SubTextStyle:
+      textMinMax: {x: 10, y: 30}

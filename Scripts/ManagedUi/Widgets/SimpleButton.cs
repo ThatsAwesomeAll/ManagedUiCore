@@ -17,9 +17,11 @@ namespace ManagedUi.Widgets
 public class SimpleButton : MonoBehaviour, IGridElement
 {
 
+    private const string C_ButtonTextObjectName = "ButtonText";
+    
     public string _buttonText = "No TEXT";
     public bool getTextFromName = true;
-    public bool autoFormat;
+    public bool autoFormat = true;
     public int growFactor = 1;
     public ManagedImage Image => _image;
     
@@ -45,11 +47,16 @@ public class SimpleButton : MonoBehaviour, IGridElement
 
     private void OnEnable()
     {
-        _image ??= GetComponent<ManagedImage>();
+        if (!_image)
+        {
+            _image = GetComponent<ManagedImage>();
+            _image.colorTheme = UiSettings.ColorName.Main;
+            _image.fixColor = true;
+        }
         _text ??= GetComponentInChildren<TextMeshProUGUI>();
         if (!_text)
         {
-            var textChild = new GameObject("ButtonText");
+            var textChild = new GameObject(C_ButtonTextObjectName);
             textChild.transform.SetParent(transform, false);
             _text = textChild.AddComponent<TextMeshProUGUI>();
         }
@@ -66,7 +73,7 @@ public class SimpleButton : MonoBehaviour, IGridElement
         _text.text = _buttonText;
         if (autoFormat)
         {
-            _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Header, _image.colorTheme);
+            _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, _image.colorTheme);
         }
     }
     

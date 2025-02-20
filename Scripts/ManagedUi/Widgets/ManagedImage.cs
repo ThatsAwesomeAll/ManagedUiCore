@@ -1,4 +1,5 @@
 using ManagedUi.GridSystem;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,21 +15,43 @@ namespace ManagedUi.Widgets
     {
         [Header("Style")]
         public bool onHoverEffect = true;
-        public bool fixColor = false;
-        public UiSettings.ColorName colorTheme;
-        public Color imageColor;
+        [SerializeField] private bool _fixColor = false;
+        [SerializeField] private UiSettings.ColorName _colorTheme;
         public Vector2Int growth = Vector2Int.one;
+
+        private Color _saveCustomColor;
         
-        [SerializeField] private UiSettings _manager;
+        public UiSettings.ColorName ColorTheme
+        {
+            get => _colorTheme;
+            set
+            {
+                _colorTheme = value;
+                SetColorByTheme(_colorTheme);
+            }
+        }
+
+        public bool FixColor
+        {
+            get => _fixColor;
+            set
+            {
+                _fixColor = value;
+                if (_fixColor)
+                {
+                    SetColorByTheme(_colorTheme);
+                }
+                else
+                {
+                    SetColorByFixed(_saveCustomColor);
+                }
+            }
+        }
+
 
         protected override void Awake()
         {
             SetUp();
-        }
-
-        public void SetUp()
-        {
-            if (!_manager) _manager = UiSettings.GetSettings();
         }
         
         #if UNITY_EDITOR
@@ -42,9 +65,9 @@ namespace ManagedUi.Widgets
             {
                 return;
             }
-            if (fixColor)
+            if (_fixColor)
             {
-                SetColorByTheme(colorTheme);
+                SetColorByTheme(_colorTheme);
             }
         }
         #endif
@@ -53,17 +76,20 @@ namespace ManagedUi.Widgets
         {
             if (!_manager) return;
             var colorTemp = _manager.GetImageColorByEnum(currentEnumValue);
+            _saveCustomColor = color;
+            _colorTheme = currentEnumValue;
             color = colorTemp;
         }
 
         public void SetColorByFixed(Color colorTypeColorValue)
         {
+            _saveCustomColor = color;
             color = colorTypeColorValue;
         }
 
         public void SetAsDefaultBackground()
         {
-            fixColor = true;
+            _fixColor = true;
             sprite = _manager.DefaultBackgroundImage();
             type = UnityEngine.UI.Image.Type.Sliced;
             pixelsPerUnitMultiplier = _manager.DefaultBackgroundImageSliceFactor;
@@ -72,6 +98,13 @@ namespace ManagedUi.Widgets
         public int VerticalLayoutGrowth() => growth.y > 0 ? growth.y : 1;
         public int HorizontalLayoutGrowth() => growth.x > 0 ? growth.x : 1;
         public bool IgnoreLayout() => false;
+        
+                
+        [SerializeField] private UiSettings _manager;
+        public void SetUp()
+        {
+            if (!_manager) _manager = UiSettings.GetSettings();
+        }
     }
 
 #if UNITY_EDITOR
@@ -91,8 +124,8 @@ namespace ManagedUi.Widgets
         {
             var UIManagerAsset = serializedObject.FindProperty("_manager");
             var colorType = serializedObject.FindProperty("imageColor");
-            var fixColor = serializedObject.FindProperty("fixColor");
-            var colorTheme = serializedObject.FindProperty("colorTheme");
+            var fixColor = serializedObject.FindProperty("_fixColor");
+            var colorTheme = serializedObject.FindProperty("_colorTheme");
             var growth = serializedObject.FindProperty("growth");
 
             EditorUtils.DrawProperty(fixColor, "Color fixed", "Fix your color by Theme");

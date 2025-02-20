@@ -125,8 +125,8 @@ public class Card : MonoBehaviour
         if (!_background)
         {
             _background = CreateImage("Background", transform);
-            _background.fixColor = true;
-            _background.colorTheme = UiSettings.ColorName.Background;
+            _background.FixColor = true;
+            _background.ColorTheme = UiSettings.ColorName.Background;
             var layout = _background.AddComponent<GrowGridLayout>();
             layout.spacing = new Vector2(0, 5);
             layout.padding.top = layout.padding.left = layout.padding.right = 20;

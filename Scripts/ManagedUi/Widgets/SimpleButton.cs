@@ -50,7 +50,7 @@ public class SimpleButton : MonoBehaviour, IGridElement
         if (!_image)
         {
             _image = GetComponent<ManagedImage>();
-            _image.colorTheme = UiSettings.ColorName.Main;
+            _image.ColorTheme = UiSettings.ColorName.Main;
             _image.SetAsDefaultBackground();
         }
         _text ??= GetComponentInChildren<TextMeshProUGUI>();
@@ -73,7 +73,7 @@ public class SimpleButton : MonoBehaviour, IGridElement
         _text.text = _buttonText;
         if (autoFormat)
         {
-            _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, _image.colorTheme);
+            _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, _image.ColorTheme);
         }
     }
     

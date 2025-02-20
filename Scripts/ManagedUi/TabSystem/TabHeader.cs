@@ -48,7 +48,7 @@ public class TabHeader : MonoBehaviour
         if (_image) return;
 
         _image = GetComponent<ManagedImage>();
-        _image.colorTheme = UiSettings.ColorName.Lighter;
+        _image.ColorTheme = UiSettings.ColorName.Lighter;
         _image.SetAsDefaultBackground();
     }
 
@@ -107,8 +107,8 @@ public class TabHeader : MonoBehaviour
         buttonChild.transform.SetParent(transform, false);
         var button = buttonChild.AddComponent<SimpleButton>();
         button.getTextFromName = false;
-        button.Image.fixColor = true;
-        button.Image.colorTheme = UiSettings.ColorName.Light;
+        button.Image.FixColor = true;
+        button.Image.ColorTheme = UiSettings.ColorName.Light;
         button.ButtonText = defaultText;
         return button;
     }
@@ -132,7 +132,7 @@ public class TabHeader : MonoBehaviour
     private SimpleButton AddTab(ManagedTab tab)
     {
         var button = CreateControlButton(tab.Title, tab.Title);
-        button.Image.colorTheme = UiSettings.ColorName.Main;
+        button.Image.ColorTheme = UiSettings.ColorName.Main;
         button.transform.SetSiblingIndex(tab.OrderIndex);
         return button;
     }

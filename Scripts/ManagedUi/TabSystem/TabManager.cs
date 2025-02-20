@@ -1,15 +1,21 @@
+using ManagedUi.GridSystem;
+using ManagedUi.SystemInterfaces;
 using UnityEngine;
 
 namespace ManagedUi.TabSystem
 {
 [ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
+[RequireComponent(typeof(TabContentContainer))]
+[RequireComponent(typeof(GridSelection))]
+[RequireComponent(typeof(UiInputManager))]
+
 public class TabManager : MonoBehaviour
 {
     private const string C_contentName = "ContentContainer";
     public TabContentContainer Content;
     private RectTransform _rectTransform;
-    private TabHolder TabContainer;
+    private GridSelection _gridSelection;
 
     public void OnEnable()
     {
@@ -22,26 +28,10 @@ public class TabManager : MonoBehaviour
             _rectTransform.offsetMax = Vector2.zero;            
         }
         
-        Content ??= GetComponentInChildren<TabContentContainer>();
-        if (!Content)
-        {
-            var buttonChild = new GameObject(C_contentName);
-            buttonChild.transform.SetParent(transform, false);
-            Content = buttonChild.AddComponent<TabContentContainer>();
-        }
-
-        TabContainer ??= GetComponentInChildren<TabHolder>();
-        if (!TabContainer)
-        {
-            return;
-        }
-        Content.SetHeader(TabContainer.Tabs);
-        ManagedTab tab = TabContainer.GetCurrentTab();
-
-        if (tab)
-        {
-            Content.ShowContent(tab);
-        }
+        _gridSelection = GetComponent<GridSelection>();
+        Content ??= GetComponent<TabContentContainer>();
+        
+        _gridSelection.SetupGrid();
     }
 }
 }

@@ -30,12 +30,11 @@ public class TabContentContainer : MonoBehaviour
 
     private void OnEnable()
     {
+        _gridSelection = GetComponent<GridSelection>();
         SetUpRectTransform();
         SetupGridLayout();
         SetupContent();
         SetupTabHeader();
-
-        _gridSelection = GetComponent<GridSelection>();
     }
 
     private void SetUpRectTransform()
@@ -98,12 +97,9 @@ public class TabContentContainer : MonoBehaviour
 
     public void SetHeader(List<ManagedTab> tabContainerTabs)
     {
-        _header.ClearTabs();
-        foreach (var tab in tabContainerTabs)
-        {
-            _header.AddTab(tab);
-        }
+        _header.AddTabs(tabContainerTabs);
     }
+    
     public void ShowContent(ManagedTab tab)
     {
         if(currentTab) DestroyImmediate(currentTab.gameObject);

@@ -8,14 +8,14 @@ namespace ManagedUi.TabSystem
 [ExecuteInEditMode]
 public class TabHolder : MonoBehaviour
 {
-    public List<ManagedTab> Tabs = new List<ManagedTab>();
+    public List<ManagedTab> _tabs = new List<ManagedTab>();
 
     private ManagedTab _currentTab;
     
     private void OnEnable()
     {
-        Tabs = GetComponentsInChildren<ManagedTab>(true).ToList();
-        foreach (var tab in Tabs)
+        _tabs = GetComponentsInChildren<ManagedTab>(true).ToList();
+        foreach (var tab in _tabs)
         {
             tab.gameObject.SetActive(false);
         }
@@ -25,7 +25,7 @@ public class TabHolder : MonoBehaviour
         if (!_currentTab)
         {
             var currentIndex = int.MinValue;
-            foreach (var tab in Tabs)
+            foreach (var tab in _tabs)
             {
                 if (tab.OrderIndex > currentIndex)
                 {
@@ -35,5 +35,19 @@ public class TabHolder : MonoBehaviour
         }
         return _currentTab;
     }
+    
+    public List<ManagedTab> Tabs
+    {
+        get
+        {
+            List<ManagedTab> sortedList = new List<ManagedTab>();
+            if (_tabs != null)
+            {
+                sortedList = _tabs.OrderBy(tab => tab.OrderIndex).ToList();
+            }
+            return sortedList;
+        }
+    }
+
 }
 }

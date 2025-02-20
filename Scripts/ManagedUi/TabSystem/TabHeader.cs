@@ -1,6 +1,8 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Widgets;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ManagedUi.TabSystem
 {
@@ -92,7 +94,6 @@ public class TabHeader : MonoBehaviour
         if (!_left)
         {
             _left = CreateControlButton(C_buttonNameLeft, "Left");
-            _left.transform.SetAsLastSibling();
             _left.Selectable.OnConfirmed += parent =>
             {
                 Debug.Log("Left Control Confirmed");
@@ -112,19 +113,34 @@ public class TabHeader : MonoBehaviour
         return button;
     }
 
+    public void AddTabs(List<ManagedTab> tabs)
+    {
+        ClearTabs();
+        SetUpControlButton();
+        _left.transform.SetAsFirstSibling();
 
-    public void AddTab(ManagedTab tab)
+        int index = _left.transform.GetSiblingIndex();
+        foreach (var tab in tabs)
+        {
+            var button = AddTab(tab);
+            button.transform.SetSiblingIndex(index+1);
+            index = button.transform.GetSiblingIndex();
+        }
+        _right.transform.SetAsLastSibling();
+    }
+
+    private SimpleButton AddTab(ManagedTab tab)
     {
         var button = CreateControlButton(tab.Title, tab.Title);
         button.Image.colorTheme = UiSettings.ColorName.Main;
         button.transform.SetSiblingIndex(tab.OrderIndex);
-        _right.transform.SetAsLastSibling();
-        _left.transform.SetAsFirstSibling();
+        return button;
     }
-    public void ClearTabs()
+    
+    private void ClearTabs()
     {
         while ( transform.childCount>0) DestroyImmediate(transform.GetChild(0).gameObject);
         SetUpControlButton();
-    }
+    } 
 }
 }

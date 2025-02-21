@@ -69,6 +69,7 @@ public class AdvancedGridLayout : LayoutGroup
             SetChildAlongAxis(childs, 1, posY, cellSizeScaledY);
             counter++;
         }
+        SetDirty();
     }
 
 

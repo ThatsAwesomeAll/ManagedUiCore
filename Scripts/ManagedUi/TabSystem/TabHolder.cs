@@ -20,10 +20,6 @@ public class TabHolder : MonoBehaviour
     private void OnEnable()
     {
         _tabs = GetComponentsInChildren<ManagedTab>(true).ToList();
-        foreach (var tab in _tabs)
-        {
-            tab.gameObject.SetActive(false);
-        }
         SetupBackground();
         if (!_rectTransform)
         {
@@ -53,14 +49,16 @@ public class TabHolder : MonoBehaviour
             var currentIndex = int.MinValue;
             foreach (var tab in _tabs)
             {
-                tab.gameObject.SetActive(false);
                 if (tab.OrderIndex > currentIndex)
                 {
                     _currentTab = tab;
                 }
             }
         }
-        _currentTab.gameObject.SetActive(true);
+        foreach (var tab in _tabs)
+        {
+            tab.gameObject.SetActive(tab == _currentTab);
+        } 
         return _currentTab;
     }
     

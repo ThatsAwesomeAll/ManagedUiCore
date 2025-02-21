@@ -72,6 +72,7 @@ public class GrowGridLayout : LayoutGroup
             SetChildAlongAxis(childs, 1, posY, cellHeight);
             counter += growthFactorChild;
         }
+        SetDirty();
     }
 
 

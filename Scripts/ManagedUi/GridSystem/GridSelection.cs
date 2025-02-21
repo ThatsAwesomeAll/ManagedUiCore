@@ -54,45 +54,78 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     public void OnEnable()
     {
         SetupGrid();
-    }
-
-    public void SetupGrid()
-    {
-        _selectables = GetComponentsInChildren<SelectableParent>();
         if (inputManager != null)
         {
             inputManager.OnDown += () =>
             {
                 MoveSelection(Direction.Down);
             };
+
             inputManager.OnUp += () =>
             {
                 MoveSelection(Direction.Up);
             };
+
             inputManager.OnLeft += () =>
             {
                 MoveSelection(Direction.Left);
             };
+
             inputManager.OnRight += () =>
             {
                 MoveSelection(Direction.Right);
             };
+
             inputManager.OnConfirm += () =>
             {
                 Confirmed();
             };
         }
+    }
+    private void OnDisable()
+    {
+        if (inputManager != null)
+        {
+            inputManager.OnDown -= () =>
+            {
+                MoveSelection(Direction.Down);
+            };
 
+            inputManager.OnUp -= () =>
+            {
+                MoveSelection(Direction.Up);
+            };
+
+            inputManager.OnLeft -= () =>
+            {
+                MoveSelection(Direction.Left);
+            };
+
+            inputManager.OnRight -= () =>
+            {
+                MoveSelection(Direction.Right);
+            };
+
+            inputManager.OnConfirm -= () =>
+            {
+                Confirmed();
+            };
+        }
+    }
+
+    public void SetupGrid()
+    {
+        _selectables = GetComponentsInChildren<SelectableParent>();
         if (_selectables.Length == 0)
         {
             return;
         }
-
         StartCoroutine(SetUp());
     }
 
     IEnumerator SetUp()
     {
+        yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
         DeselectGrid();
         SetUpGrid();
@@ -135,9 +168,13 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     void SetUpGrid()
     {
         Vector2 minSize = GetMinimalSize(_selectables);
+        _grid.Clear();
+        // reduce grid size for unique positions
+        minSize *= 0.5f;
         foreach (var selectable in _selectables)
         {
-            selectable.GridPosition = new Vector2Int((int)(selectable.AnchoredPosition.x/minSize.x), (int)(selectable.AnchoredPosition.y/minSize.y));
+            selectable.GridPosition = new Vector2Int((int)(selectable.ScreenPosition.x/minSize.x), (int)(selectable.ScreenPosition.y/minSize.y));
+            Debug.Log("Selectable Grid Position: " + selectable.GridPosition + selectable.name);
             _grid.Add(selectable, selectable.GridPosition);
         }
     }

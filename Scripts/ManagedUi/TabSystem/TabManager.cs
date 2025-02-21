@@ -9,7 +9,6 @@ namespace ManagedUi.TabSystem
 [RequireComponent(typeof(TabContentContainer))]
 [RequireComponent(typeof(GridSelection))]
 [RequireComponent(typeof(UiInputManager))]
-
 public class TabManager : MonoBehaviour
 {
     private const string C_contentName = "ContentContainer";

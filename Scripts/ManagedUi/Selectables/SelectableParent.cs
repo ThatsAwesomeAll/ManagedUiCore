@@ -32,8 +32,23 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     Tween _currentScaleTween;
 
 
-    public Vector2 AnchoredPosition => _rectTransform.position;
-    public Vector2 Size => new Vector2(_rectTransform.rect.width, _rectTransform.rect.height);
+    public Vector2 ScreenPosition
+    {
+        get
+        {
+            if (_rectTransform) return _rectTransform.position;
+            return Vector2.zero;
+        }
+    }
+
+    public Vector2 Size
+    {
+        get
+        {
+            if (!_rectTransform) return Vector2.zero;
+            return new Vector2(_rectTransform.rect.width, _rectTransform.rect.height);
+        }
+    }
 
 
     private void Awake()
@@ -81,6 +96,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     {
         _selectableManager ??= GetComponentInParent<ISelectableManager>();
         animationAnimation ??= GetComponentInChildren<SelectionAnimation>();
+        _rectTransform ??= GetComponent<RectTransform>();
         SetUpSettings();
     }
 
@@ -114,7 +130,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             });
         }
     }
-    
+
     private void AnimateVisual(float endValuePercent, float inDuration)
     {
         _currentScaleTween.Stop();
@@ -185,7 +201,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     {
         // OnDeselect(eventData);
     }
-    
+
     [SerializeField] private UiSettings _manager;
     void SetUpSettings()
     {

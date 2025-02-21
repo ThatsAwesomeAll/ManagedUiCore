@@ -71,9 +71,27 @@ public class TabHolder : MonoBehaviour
             {
                 sortedList = _tabs.OrderBy(tab => tab.OrderIndex).ToList();
             }
+            int lastIndex = int.MinValue;
+            foreach (var tab in sortedList)
+            {
+                if (lastIndex == tab.OrderIndex)
+                {
+                    tab.OrderIndex++;
+                }
+                lastIndex = tab.OrderIndex;
+            }
             return sortedList;
         }
     }
 
+    public void SelectTab(ManagedTab managedTab)
+    {
+        if (_currentTab)
+        {
+            _currentTab.gameObject.SetActive(false);
+        }
+        _currentTab = managedTab;
+        managedTab.gameObject.SetActive(true);
+    }
 }
 }

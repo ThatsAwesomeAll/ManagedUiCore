@@ -1,8 +1,9 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Widgets;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace ManagedUi.TabSystem
 {
@@ -21,6 +22,11 @@ public class TabHeader : MonoBehaviour
     private RectTransform _rectTransform;
     private GrowGridLayout _grid;
     private ManagedImage _image;
+
+    public Action<ManagedTab> OnTabSelected;
+
+    private ManagedTab currentTab;
+    private Dictionary<ManagedTab, SimpleButton> _currentTabButtons = new Dictionary<ManagedTab, SimpleButton>();
 
     public void OnEnable()
     {
@@ -88,7 +94,7 @@ public class TabHeader : MonoBehaviour
             _right = CreateControlButton(C_buttonNameRight, "Right");
             _right.Selectable.OnConfirmed += parent =>
             {
-                Debug.Log("Right Control Confirmed");
+                SelectNextTab(true);
             };
         }
         if (!_left)
@@ -96,9 +102,56 @@ public class TabHeader : MonoBehaviour
             _left = CreateControlButton(C_buttonNameLeft, "Left");
             _left.Selectable.OnConfirmed += parent =>
             {
-                Debug.Log("Left Control Confirmed");
+                SelectNextTab(false);
             };
         }
+    }
+    private void SelectNextTab(bool forward)
+    {
+        Debug.Log("Right Control Confirmed");
+
+        if (_currentTabButtons.Count == 0) return;
+        if (!currentTab)
+        {
+            currentTab = _currentTabButtons.Keys.First();
+        }
+        else
+        {
+            int targetOrderIndex = ComputeNextOrderIndex(forward);
+            currentTab = _currentTabButtons.First(x => x.Key.OrderIndex == targetOrderIndex).Key;
+        }
+        OnTabSelected?.Invoke(currentTab);
+    }
+    
+    private int ComputeNextOrderIndex(bool forward)
+    {
+        List<int> orderIndexes = _currentTabButtons.Keys.Select(tab => tab.OrderIndex).ToList();
+        orderIndexes.Sort();
+        int currentOrderIndex = orderIndexes.FindIndex(x => x == currentTab.OrderIndex);
+        int newIndex = 0;
+        if (forward)
+        {
+            if (currentOrderIndex + 1 < orderIndexes.Count)
+            {
+                newIndex = currentOrderIndex + 1;
+            }
+            else
+            {
+                newIndex = 0;
+            }
+        }
+        else
+        {
+            if (currentOrderIndex > 0)
+            {
+                newIndex = currentOrderIndex-1;
+            }
+            else
+            {
+                newIndex = orderIndexes.Count - 1;
+            }
+        }
+        return orderIndexes[newIndex];
     }
 
     private SimpleButton CreateControlButton(string buttonObjectName, string defaultText)
@@ -118,13 +171,15 @@ public class TabHeader : MonoBehaviour
         ClearTabs();
         SetUpControlButton();
         _left.transform.SetAsFirstSibling();
+        _currentTabButtons.Clear();
 
         int index = _left.transform.GetSiblingIndex();
         foreach (var tab in tabs)
         {
             var button = AddTab(tab);
-            button.transform.SetSiblingIndex(index+1);
+            button.transform.SetSiblingIndex(index + 1);
             index = button.transform.GetSiblingIndex();
+            _currentTabButtons.Add(tab, button);
         }
         _right.transform.SetAsLastSibling();
     }
@@ -134,13 +189,28 @@ public class TabHeader : MonoBehaviour
         var button = CreateControlButton(tab.Title, tab.Title);
         button.Image.ColorTheme = UiSettings.ColorName.Main;
         button.transform.SetSiblingIndex(tab.OrderIndex);
+        button.Selectable.OnConfirmed += parent =>
+        {
+            TabSelected(tab);
+        };
         return button;
     }
-    
+
+    private void TabSelected(ManagedTab tab)
+    {
+        currentTab = tab;
+        OnTabSelected?.Invoke(tab);
+    }
+
     private void ClearTabs()
     {
-        while ( transform.childCount>0) DestroyImmediate(transform.GetChild(0).gameObject);
+        while(transform.childCount > 0) DestroyImmediate(transform.GetChild(0).gameObject);
         SetUpControlButton();
-    } 
+    }
+
+    public void SetCurrentTab(ManagedTab managedTab)
+    {
+        currentTab = managedTab;
+    }
 }
 }

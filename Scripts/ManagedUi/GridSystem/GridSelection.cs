@@ -126,7 +126,6 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     IEnumerator SetUp()
     {
         yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
         DeselectGrid();
         SetUpGrid();
         if (_currentSelected != null)
@@ -174,7 +173,6 @@ public class GridSelection : MonoBehaviour, ISelectableManager
         foreach (var selectable in _selectables)
         {
             selectable.GridPosition = new Vector2Int((int)(selectable.ScreenPosition.x/minSize.x), (int)(selectable.ScreenPosition.y/minSize.y));
-            Debug.Log("Selectable Grid Position: " + selectable.GridPosition + selectable.name);
             _grid.Add(selectable, selectable.GridPosition);
         }
     }

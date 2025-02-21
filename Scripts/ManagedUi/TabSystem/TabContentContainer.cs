@@ -30,7 +30,22 @@ public class TabContentContainer : MonoBehaviour
         SetupTabHolder();
 
         _header.AddTabs(_tabHolder.Tabs);
+        _header.OnTabSelected += SelectTab;
         currentTab = _tabHolder.GetCurrentTab();
+        _header.SetCurrentTab(currentTab);
+    }
+
+    private void OnDisable()
+    {
+        if (_header)
+        {
+            _header.OnTabSelected -= SelectTab;
+        }
+    }
+
+    private void SelectTab(ManagedTab obj)
+    {
+        _tabHolder?.SelectTab(obj);
     }
 
 

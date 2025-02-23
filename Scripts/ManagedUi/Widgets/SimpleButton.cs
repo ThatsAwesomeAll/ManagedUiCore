@@ -14,7 +14,7 @@ namespace ManagedUi.Widgets
 [ExecuteInEditMode]
 [RequireComponent(typeof(ManagedImage))]
 [RequireComponent(typeof(SelectableParent))]
-public class SimpleButton : MonoBehaviour, IGridElement
+public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
 {
 
     private const string C_ButtonTextObjectName = "ButtonText";

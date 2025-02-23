@@ -11,7 +11,7 @@ namespace ManagedUi.Widgets
 {
     
     [ExecuteInEditMode]
-    public class ManagedImage : Image, IGridElement
+    public class ManagedImage : Image, IManagedGridLayoutElement
     {
         [Header("Style")]
         public bool onHoverEffect = true;

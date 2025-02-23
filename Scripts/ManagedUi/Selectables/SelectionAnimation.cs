@@ -1,7 +1,6 @@
 ﻿using ManagedUi.GridSystem;
+using System;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,12 +9,15 @@ namespace ManagedUi.Selectables
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Image))]
-public class SelectionAnimation : MonoBehaviour, IGridElement
+public class SelectionAnimation : MonoBehaviour, IManagedGridLayoutElement, ISelectableAnimator
 {
     public List<Image> images = new List<Image>();
     public bool enableNeeded = true;
     public bool spriteFixed = false;
-    
+       
+    private Image _selectionImage;
+    private Dictionary<Image,Color> defaultColors = new Dictionary<Image,Color>();
+
     [SerializeField] private Sprite _selectionSprite;
     public Sprite SelectionSprite
     {
@@ -27,16 +29,36 @@ public class SelectionAnimation : MonoBehaviour, IGridElement
         }
     }
 
-    private Image _selectionImage;
-    private Dictionary<Image,Color> defaultColors = new Dictionary<Image,Color>();
+    public void SetEnabled(bool enable)
+    {
+        gameObject.SetActive(enabled);
+        _selectionImage.enabled = enable;
+    }
     
-    public void SetColor(Color color)
+    public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
+    {
+        switch (mode)
+        {
+            case ISelectableAnimator.Mode.Default:
+                LerpToDefault(currentValue);
+                break;
+            case ISelectableAnimator.Mode.Selected:
+                break;
+            case ISelectableAnimator.Mode.Confirmed:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+        }
+    }
+
+    private void SetColor(Color color)
     {
         foreach (var image in images)
         {
             image.color = color;
         }
     }
+    
     private void OnEnable()
     {
         SetUp();
@@ -74,7 +96,7 @@ public class SelectionAnimation : MonoBehaviour, IGridElement
         _selectionImage.rectTransform.offsetMax = Vector2.zero;
     }
     
-    public void LerpToDefault(float currentValue)
+    private void LerpToDefault(float currentValue)
     {
         foreach (var image in images)
         {
@@ -95,10 +117,5 @@ public class SelectionAnimation : MonoBehaviour, IGridElement
         if (!_manager) _manager = UiSettings.GetSettings();
     }
 
-    public void SetEnabled(bool enable)
-    {
-        gameObject.SetActive(enabled);
-        _selectionImage.enabled = enable;
-    }
 }
 }

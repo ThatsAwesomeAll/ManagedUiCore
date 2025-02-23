@@ -45,7 +45,7 @@ public class GrowGridLayout : LayoutGroup
         foreach (var childs in rectChildren)
         {
             int growthFactorChild = 1;
-            var layoutGrowable = childs.GetComponent<IGridElement>();
+            var layoutGrowable = childs.GetComponent<IManagedGridLayoutElement>();
             if (layoutGrowable != null)
             {
                 if (layoutGrowable.IgnoreLayout())
@@ -98,7 +98,7 @@ public class GrowGridLayout : LayoutGroup
         int growFactor = 0;
         foreach (var childs in rectChildren)
         {
-            var layoutGrowable = childs.GetComponent<IGridElement>();
+            var layoutGrowable = childs.GetComponent<IManagedGridLayoutElement>();
             if (layoutGrowable == null)
             {
                 // Factor 1 as default

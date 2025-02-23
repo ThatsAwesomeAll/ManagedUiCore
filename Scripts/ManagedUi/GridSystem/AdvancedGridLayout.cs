@@ -51,7 +51,7 @@ public class AdvancedGridLayout : LayoutGroup
         int counter = 0;
         foreach (var childs in rectChildren)
         {
-            var layoutGrowable = childs.GetComponent<IGridElement>();
+            var layoutGrowable = childs.GetComponent<IManagedGridLayoutElement>();
             if (layoutGrowable != null && layoutGrowable.IgnoreLayout())
             {
                 continue;
@@ -108,7 +108,7 @@ public class AdvancedGridLayout : LayoutGroup
         int validChilds = 0;
         foreach (var childs in rectChildren)
         {
-            var LayoutGrowable = childs.GetComponent<IGridElement>();
+            var LayoutGrowable = childs.GetComponent<IManagedGridLayoutElement>();
             if (LayoutGrowable == null)
             {
                 validChilds++;

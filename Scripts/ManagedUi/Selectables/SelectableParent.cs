@@ -1,21 +1,58 @@
 using PrimeTween;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 
 namespace ManagedUi.Selectables
 {
+[ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler, IPointerClickHandler,
     IPointerEnterHandler, IPointerExitHandler
 {
-    [FormerlySerializedAs("_animationImage")] [Header("Animation")]
-    public SelectionAnimation animationAnimation;
+    [Header("Animation")]
+    [SerializeField] List<ISelectableAnimator> _selectionAnimators = new List<ISelectableAnimator>();
 
-    public float animationDuration = 0.1f;
-    public float animationStrengthPercent = 2f;
-    public Ease animationEase = Ease.Default;
+    public bool _customAnimation = false;
+    [SerializeField] private float _animationDuration = 0.1f;
+    [SerializeField] private float _animationStrengthPercent = 5f;
+    [SerializeField] private Ease _animationEase = Ease.Linear;
+    public float AnimationDuration
+    {
+        get
+        {
+            if (!_customAnimation && _manager)
+            {
+                return _manager.DefaultSelectionDuration;
+            }
+            return _animationDuration;
+        }
+    }
+    public float AnimationStrengthPercent
+    {
+        get
+        {
+            if (!_customAnimation && _manager)
+            {
+                return _manager.DefaultSelectionStrength;
+            }
+            return _animationStrengthPercent;
+        }
+    }
+    public Ease AnimationEase
+    {
+        get
+        {
+            if (!_customAnimation)
+            {
+                return Ease.Default;
+            }
+            return _animationEase; 
+        }
+    }
 
     [Header("Grid Settings")]
     public bool _gridFixed = false;
@@ -26,6 +63,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     ISelectableManager _selectableManager;
     RectTransform _rectTransform;
     Vector2Int _internalGridPosition = new Vector2Int(0, 0);
+
     private bool _confirmed;
     private bool _selected;
     Tween _currentScaleTween;
@@ -94,12 +132,17 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     private void OnEnable()
     {
         _selectableManager ??= GetComponentInParent<ISelectableManager>();
-        animationAnimation ??= GetComponentInChildren<SelectionAnimation>();
+        _selectionAnimators ??= GetComponentsInChildren<ISelectableAnimator>().ToList();
+        var selectionAnimator = GetComponent<ISelectableAnimator>();
+        if (selectionAnimator != null)
+        {
+            _selectionAnimators.Add(selectionAnimator);
+        }
         _rectTransform ??= GetComponent<RectTransform>();
         SetUpSettings();
     }
 
-    private void AnimateVisual(float endValuePercent, Color startColor, Color endColor, float inDuration, bool withFadeout = false)
+    private void AnimateVisual(float endValuePercent, float inDuration, ISelectableAnimator.Mode mode = default, bool withFadeout = false)
     {
         _currentScaleTween.Stop();
         float scalingValue = 1 + endValuePercent*0.01f;
@@ -111,51 +154,30 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         }
         _currentScaleTween = Tween.Custom(0.0f, 1.0f, inDuration, (float currentValue) =>
         {
-            if (animationAnimation != null)
-            {
-                animationAnimation.SetColor(Color.Lerp(startColor, endColor, currentValue));
-            }
             transform.localScale = Vector3.Lerp(startSize, endSize, currentValue);
-        }, ease: animationEase);
+            foreach (var animators in _selectionAnimators)
+            {
+                animators.LerpTo(mode, currentValue);
+            }
+        }, ease: AnimationEase);
         if (withFadeout)
         {
             _currentScaleTween.OnComplete(() =>
             {
-                if (animationAnimation != null)
+                foreach (var animators in _selectionAnimators)
                 {
-                    animationAnimation.SetColor(startColor);
+                    animators.LerpTo(ISelectableAnimator.Mode.Default, 1);
                 }
                 transform.localScale = startSize;
             });
         }
     }
 
-    private void AnimateVisual(float endValuePercent, float inDuration)
-    {
-        _currentScaleTween.Stop();
-        float scalingValue = 1 + endValuePercent*0.01f;
-        Vector3 startSize = transform.localScale;
-        Vector3 endSize = Vector3.one*scalingValue;
-        if (startSize == endSize)
-        {
-            return;
-        }
-        _currentScaleTween = Tween.Custom(0.0f, 1.0f, inDuration, (float currentValue) =>
-        {
-            transform.localScale = Vector3.Lerp(startSize, endSize, currentValue);
-            if (animationAnimation != null)
-            {
-                animationAnimation.LerpToDefault(currentValue);
-            }
-        }, ease: animationEase);
-    }
-
     private void EnableVisualImage(bool enable)
     {
-        if (!animationAnimation) return;
-        if (animationAnimation.enableNeeded)
+        foreach (var animators in _selectionAnimators)
         {
-            animationAnimation.SetEnabled(enable);
+            animators.SetEnabled(enable);
         }
     }
 
@@ -163,18 +185,18 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     {
         if (selected)
         {
-            AnimateVisual(animationStrengthPercent, _manager.SelectedColor, _manager.SelectedColor, animationDuration);
+            AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Selected);
         }
         else
         {
-            AnimateVisual(0, animationDuration);
+            AnimateVisual(0, AnimationDuration);
         }
         EnableVisualImage(selected);
     }
 
     private void AnimateConfirm()
     {
-        AnimateVisual(animationStrengthPercent*1.2f, _manager.SelectedColor, _manager.ConfirmedColor, animationDuration*0.5f, true);
+        AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Confirmed, true);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -188,17 +210,35 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     }
     public void OnSelect(BaseEventData eventData)
     {
-        _selectableManager?.TriggerExternalSelect(this);
+        if (_selectableManager != null)
+        {
+            _selectableManager.TriggerExternalSelect(this);
+        }
+        else
+        {
+            AnimateSelect(true);
+        }
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
-        _selectableManager?.TriggerExternalDeSelect(this);
+        if (_selectableManager != null)
+        {
+            _selectableManager?.TriggerExternalDeSelect(this);
+        }
+        else
+        {
+            AnimateSelect(false);
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // OnDeselect(eventData);
+        if (_selectableManager == null)
+        {
+            AnimateSelect(false);
+        }
+
     }
 
     [SerializeField] private UiSettings _manager;

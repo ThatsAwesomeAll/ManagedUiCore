@@ -1,6 +1,7 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagedUi
 {
@@ -29,10 +30,16 @@ public class UiSettings : ScriptableObject
         
     [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
 
+    [Header("Selection Animation")]
+    [SerializeField] private float defaultSelectionDuration = 0.3f;
+    [SerializeField] private float defaultSelectionStrength = 5f;
+    [SerializeField] private AnimationCurve defaultTextSelectionCurve = new AnimationCurve();
 
+    public float DefaultSelectionDuration => defaultSelectionDuration;
+    public float DefaultSelectionStrength => defaultSelectionStrength;
+    public AnimationCurve DefaultTextSelectionCurve => defaultTextSelectionCurve;
+    
     public FontStyleSettings FontStyles => DefaultFontStyleSettings;
-
-
     public Color SelectedColor => ImageColors.ColorAccent;
     public Color ConfirmedColor => ImageColors.ColorAccentLighter;
 
@@ -44,7 +51,7 @@ public class UiSettings : ScriptableObject
         TextColors = new ColorTheme(ColorMode.DefaultText);
     }
 
-    public Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
+    public static Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
     {
         return colorTheme switch
         {
@@ -63,9 +70,13 @@ public class UiSettings : ScriptableObject
     public Color GetImageColorByEnum(ColorName colorTheme)
     {
         return GetImageColorByEnum(colorTheme, ImageColors);
+    }  
+    public Color GetTextColorByEnum(ColorName colorTheme)
+    {
+        return GetImageColorByEnum(colorTheme, TextColors);
     }
 
-    private void ScaleRectTrans(RectTransform transform)
+    private static void ScaleRectTrans(RectTransform transform)
     {
         transform.anchorMin = new Vector2(0, 0);
         transform.anchorMax = new Vector2(1, 1);
@@ -93,6 +104,11 @@ public class UiSettings : ScriptableObject
         text.fontSizeMin = textSize.x;
         text.fontSizeMax = textSize.y;
         text.alignment = TextAlignmentOptions.Center;
+    }
+
+    public void SetTextColor(TextMeshProUGUI text, ColorName background)
+    {
+        text.color = GetImageColorByEnum(background, TextColors);
     }
     
     #region SettingDefinition

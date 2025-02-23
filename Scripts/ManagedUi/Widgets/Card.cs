@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
+using NUnit.Framework.Internal;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,24 +11,28 @@ namespace ManagedUi.Widgets
 [ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 [RequireComponent(typeof(SelectableParent))]
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, ISelectableAnimator
 {
-    
+
     [Header("Content")]
-    public string Title;
-    public string Text;
+    public string Title = "Card Title";
+
+    public string Text = "This should be some text. Try things out. Get wrapped. Long Long Longer.";
     public Sprite Image;
-    public UiSettings.ColorTheme BackgroundColor;
-    public UiSettings.ColorTheme TitleColor;
-    public UiSettings.ColorTheme TextColor;
-    
+    public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.BackgroundDarker;
+    public UiSettings.ColorName TitleColor = UiSettings.ColorName.BackgroundDarker;
+    public UiSettings.ColorName TextColor = UiSettings.ColorName.Background;
+
     [Header("UI Elements")]
     [SerializeField] ManagedImage _image;
+
     [SerializeField] ManagedImage _background;
     [SerializeField] SelectionAnimation _selectionAnimation;
     [SerializeField] TextMeshProUGUI _title;
     [SerializeField] TextMeshProUGUI _text;
     [SerializeField] RectTransform _rect;
+    private Vector3 _textScale;
+
 
     protected void Awake()
     {
@@ -59,7 +64,7 @@ public class Card : MonoBehaviour
             _image.sprite = _manager.DefaultImage();
         }
     }
-    
+
     private void SetupSelectionAnimation()
     {
         var allAnimations = GetComponentsInChildren<SelectionAnimation>();
@@ -72,9 +77,9 @@ public class Card : MonoBehaviour
         }
         if (_selectionAnimation != null)
             return;
-        
-        var animationChild = new GameObject( "SelectionAnimation");
-        animationChild.transform.SetParent(_background.transform, false); 
+
+        var animationChild = new GameObject("SelectionAnimation");
+        animationChild.transform.SetParent(_background.transform, false);
         var animationTemp = animationChild.AddComponent<SelectionAnimation>();
         animationTemp.images.Add(_background);
         _selectionAnimation = animationTemp;
@@ -97,16 +102,17 @@ public class Card : MonoBehaviour
         }
         if (!_title)
         {
-            _title = CreateText("Title", "No Title", UiSettings.TextStyle.Highlight);
+            _title = CreateText("Title", Title, UiSettings.TextStyle.Highlight, TitleColor);
             _title.transform.SetAsLastSibling();
         }
         if (!_text)
         {
-            _text = CreateText("Text", "No Content", UiSettings.TextStyle.Text);
+            _text = CreateText("Text", Text, UiSettings.TextStyle.Text, TextColor);
             _text.transform.SetAsLastSibling();
         }
+        _textScale = _text.transform.localScale;
     }
-    
+
     private void SetUpImages()
     {
         var allImages = GetComponentsInChildren<ManagedImage>();
@@ -126,7 +132,7 @@ public class Card : MonoBehaviour
         {
             _background = CreateImage("Background", transform);
             _background.FixColor = true;
-            _background.ColorTheme = UiSettings.ColorName.Background;
+            _background.ColorTheme = BackgroundTheme;
             var layout = _background.AddComponent<GrowGridLayout>();
             layout.spacing = new Vector2(0, 5);
             layout.padding.top = layout.padding.left = layout.padding.right = 20;
@@ -140,17 +146,17 @@ public class Card : MonoBehaviour
         {
             _image = CreateImage("Image", _background.transform);
             _image.transform.SetAsFirstSibling();
-            _image.growth = Vector2Int.one * 5;
+            _image.growth = Vector2Int.one*5;
         }
     }
-   
-    private TextMeshProUGUI CreateText(string textName, string defaultText, UiSettings.TextStyle style)
+
+    private TextMeshProUGUI CreateText(string textName, string defaultText, UiSettings.TextStyle style, UiSettings.ColorName background)
     {
         var textChild = new GameObject(textName);
         textChild.transform.SetParent(_background.transform, false);
         var text = textChild.AddComponent<TextMeshProUGUI>();
         text.text = defaultText;
-        _manager.SetTextAutoFormat(text, style, UiSettings.ColorName.Dark);
+        _manager.SetTextAutoFormat(text, style, background);
         return text;
     }
     private ManagedImage CreateImage(string imageName, Transform parent)
@@ -159,11 +165,32 @@ public class Card : MonoBehaviour
         textChild.transform.SetParent(parent, false);
         return textChild.AddComponent<ManagedImage>();
     }
-    
+
     [SerializeField] private UiSettings _manager;
     public void SetUp()
     {
         if (!_manager) _manager = UiSettings.GetSettings();
+    }
+    public void SetEnabled(bool enabled)
+    {
+        return;
+    }
+
+    public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
+    {
+        if (!_text)
+            return;
+        if (mode != ISelectableAnimator.Mode.Default)
+        {
+            var lerpValue = _manager.DefaultTextSelectionCurve.Evaluate(currentValue);
+            _text.color = Color.Lerp(_manager.GetTextColorByEnum(TextColor), _manager.GetImageColorByEnum(UiSettings.ColorName.Accent), lerpValue);
+            _text.transform.localScale = _textScale*lerpValue;
+        }
+        else
+        {
+            _manager.SetTextColor(_text, UiSettings.ColorName.Background);
+            _text.transform.localScale = _textScale;
+        }
     }
 }
 

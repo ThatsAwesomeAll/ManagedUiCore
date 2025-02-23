@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace ManagedUi.TabSystem
 {
-[ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 [RequireComponent(typeof(TabContentContainer))]
 [RequireComponent(typeof(GridSelection))]
@@ -29,8 +28,19 @@ public class TabManager : MonoBehaviour
         
         _gridSelection = GetComponent<GridSelection>();
         Content ??= GetComponent<TabContentContainer>();
+        Content.onSeletedTabChanged += UpdateGrid;
         
         _gridSelection.SetupGrid();
+    }
+    
+    public void OnDisable()
+    {
+        Content.onSeletedTabChanged -= UpdateGrid;
+    }
+    
+    private void UpdateGrid(ManagedTab obj)
+    {
+        _gridSelection?.SetupGrid();
     }
 }
 }

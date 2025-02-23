@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 namespace ManagedUi.Selectables
 {
 [RequireComponent(typeof(RectTransform))]
-[ExecuteInEditMode]
 public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler, IPointerClickHandler,
     IPointerEnterHandler, IPointerExitHandler
 {
@@ -156,7 +155,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         if (!animationAnimation) return;
         if (animationAnimation.enableNeeded)
         {
-            animationAnimation.gameObject.SetActive(enable);
+            animationAnimation.SetEnabled(enable);
         }
     }
 

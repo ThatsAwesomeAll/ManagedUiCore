@@ -4,6 +4,7 @@ using ManagedUi.Widgets;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagedUi.TabSystem
 {
@@ -17,11 +18,12 @@ public class TabContentContainer : MonoBehaviour
 
     private GrowGridLayout _layout;
 
-    [SerializeField] TabHolder _tabHolder;
-    [SerializeField] TabHeader _header;
-    private ManagedTab currentTab;
-    public TabHeader Header => _header;
+    [SerializeField] private TabHolder tabHolder;
+    [SerializeField] private TabHeader header;
+    public TabHeader Header => header;
+    public Action<ManagedTab> onSeletedTabChanged;
 
+    private ManagedTab _currentTab;
 
     private void OnEnable()
     {
@@ -29,37 +31,38 @@ public class TabContentContainer : MonoBehaviour
         SetupTabHeader();
         SetupTabHolder();
 
-        _header.AddTabs(_tabHolder.Tabs);
-        _header.OnTabSelected += SelectTab;
-        currentTab = _tabHolder.GetCurrentTab();
-        _header.SetCurrentTab(currentTab);
+        header.AddTabs(tabHolder.Tabs);
+        header.OnTabSelected += SelectTab;
+        _currentTab = tabHolder.GetCurrentTab();
+        header.SetCurrentTab(_currentTab);
     }
 
     private void OnDisable()
     {
-        if (_header)
+        if (header)
         {
-            _header.OnTabSelected -= SelectTab;
+            header.OnTabSelected -= SelectTab;
         }
     }
 
     private void SelectTab(ManagedTab obj)
     {
-        _tabHolder?.SelectTab(obj);
+        tabHolder?.SelectTab(obj);
+        onSeletedTabChanged?.Invoke(obj);
     }
 
 
     private void SetupTabHolder()
     {
-        _tabHolder ??= GetComponentInChildren<TabHolder>();
-        if (_tabHolder != null)
+        tabHolder ??= GetComponentInChildren<TabHolder>();
+        if (tabHolder != null)
         {
             return;
         }
         var headerChild = new GameObject(C_contentName);
         headerChild.transform.SetParent(transform, false);
-        _tabHolder = headerChild.AddComponent<TabHolder>();
-        _tabHolder.transform.SetAsLastSibling();
+        tabHolder = headerChild.AddComponent<TabHolder>();
+        tabHolder.transform.SetAsLastSibling();
     }
 
     private void SetupGridLayout()
@@ -74,15 +77,15 @@ public class TabContentContainer : MonoBehaviour
 
     private void SetupTabHeader()
     {
-        _header ??= GetComponentInChildren<TabHeader>();
-        if (_header != null)
+        header ??= GetComponentInChildren<TabHeader>();
+        if (header != null)
         {
             return;
         }
         var headerChild = new GameObject(C_tabHeaderName);
         headerChild.transform.SetParent(transform, false);
-        _header = headerChild.AddComponent<TabHeader>();
-        _header.transform.SetAsFirstSibling();
+        header = headerChild.AddComponent<TabHeader>();
+        header.transform.SetAsFirstSibling();
     }
 
 }

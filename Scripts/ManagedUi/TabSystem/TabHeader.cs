@@ -108,8 +108,6 @@ public class TabHeader : MonoBehaviour
     }
     private void SelectNextTab(bool forward)
     {
-        Debug.Log("Right Control Confirmed");
-
         if (_currentTabButtons.Count == 0) return;
         if (!currentTab)
         {

@@ -57,7 +57,8 @@ public class SelectionAnimation : MonoBehaviour, IGridElement
         foreach (var image in images)
         {
             defaultColors.Add(image, image.color);
-        } 
+        }
+        _selectionImage.enabled = false;
     }
     
     private void SetUpSelectionMarker()
@@ -93,6 +94,11 @@ public class SelectionAnimation : MonoBehaviour, IGridElement
     {
         if (!_manager) _manager = UiSettings.GetSettings();
     }
-    
+
+    public void SetEnabled(bool enable)
+    {
+        gameObject.SetActive(enabled);
+        _selectionImage.enabled = enable;
+    }
 }
 }

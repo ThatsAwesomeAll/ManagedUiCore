@@ -111,6 +111,7 @@ public class GridSelection : MonoBehaviour, ISelectableManager
                 Confirmed();
             };
         }
+        StopCoroutine(SetUp());
     }
 
     public void SetupGrid()

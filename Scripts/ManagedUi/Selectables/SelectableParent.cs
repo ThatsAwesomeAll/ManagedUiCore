@@ -132,7 +132,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     private void OnEnable()
     {
         _selectableManager ??= GetComponentInParent<ISelectableManager>();
-        _selectionAnimators ??= GetComponentsInChildren<ISelectableAnimator>().ToList();
+        _selectionAnimators = GetComponentsInChildren<ISelectableAnimator>(true).ToList();
         var selectionAnimator = GetComponent<ISelectableAnimator>();
         if (selectionAnimator != null)
         {
@@ -166,6 +166,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             {
                 foreach (var animators in _selectionAnimators)
                 {
+                    animators.SetEnabled(ISelectableAnimator.Mode.Default);
                     animators.LerpTo(ISelectableAnimator.Mode.Default, 1);
                 }
                 transform.localScale = startSize;
@@ -173,16 +174,18 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         }
     }
 
-    private void EnableVisualImage(bool enable)
+    private void EnableVisualImage(ISelectableAnimator.Mode mode)
     {
         foreach (var animators in _selectionAnimators)
         {
-            animators.SetEnabled(enable);
+            animators.SetEnabled(mode);
         }
     }
 
     private void AnimateSelect(bool selected)
     {
+        var mode = selected ? ISelectableAnimator.Mode.Selected : ISelectableAnimator.Mode.Default;
+        EnableVisualImage(mode);
         if (selected)
         {
             AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Selected);
@@ -191,11 +194,11 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         {
             AnimateVisual(0, AnimationDuration);
         }
-        EnableVisualImage(selected);
     }
 
     private void AnimateConfirm()
     {
+        EnableVisualImage(ISelectableAnimator.Mode.Confirmed);
         AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Confirmed, true);
     }
 

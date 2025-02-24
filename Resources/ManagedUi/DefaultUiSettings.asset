@@ -46,3 +46,38 @@ MonoBehaviour:
       textMinMax: {x: 20, y: 40}
     SubTextStyle:
       textMinMax: {x: 10, y: 30}
+  defaultSelectionDuration: 0.3
+  defaultSelectionStrength: 5
+  defaultTextSelectionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.00409317
+      value: 0.9959717
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.47702026
+      value: 0.9383087
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.99316406
+      value: 0.99401855
+      inSlope: -0.051343527
+      outSlope: -0.051343527
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.15107343
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

@@ -4,6 +4,7 @@ using NUnit.Framework.Internal;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagedUi.Widgets
 {
@@ -11,7 +12,7 @@ namespace ManagedUi.Widgets
 [ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 [RequireComponent(typeof(SelectableParent))]
-public class Card : MonoBehaviour, ISelectableAnimator
+public class Card : MonoBehaviour
 {
 
     [Header("Content")]
@@ -27,7 +28,7 @@ public class Card : MonoBehaviour, ISelectableAnimator
     [SerializeField] ManagedImage _image;
 
     [SerializeField] ManagedImage _background;
-    [SerializeField] SelectionAnimation _selectionAnimation;
+    [SerializeField] ManagedImage _selectionImage;
     [SerializeField] TextMeshProUGUI _title;
     [SerializeField] TextMeshProUGUI _text;
     [SerializeField] RectTransform _rect;
@@ -67,22 +68,24 @@ public class Card : MonoBehaviour, ISelectableAnimator
 
     private void SetupSelectionAnimation()
     {
-        var allAnimations = GetComponentsInChildren<SelectionAnimation>();
+        var allAnimations = GetComponentsInChildren<ManagedImage>();
         foreach (var animation in allAnimations)
         {
             if (animation.name == "SelectionAnimation")
             {
-                _selectionAnimation ??= animation;
+                _selectionImage ??= animation;
             }
         }
-        if (_selectionAnimation != null)
+        if (_selectionImage != null)
             return;
 
         var animationChild = new GameObject("SelectionAnimation");
         animationChild.transform.SetParent(_background.transform, false);
-        var animationTemp = animationChild.AddComponent<SelectionAnimation>();
-        animationTemp.images.Add(_background);
-        _selectionAnimation = animationTemp;
+        var animationTemp = animationChild.AddComponent<ManagedImage>();
+        animationTemp.sprite = _manager.DefaultSelectionImage();
+        StyleDefaultUtils.StyleSelectionMarker(animationTemp);
+        _selectionImage = animationTemp;
+        _selectionImage.enabled = false;
     }
 
     private void SetUpAllText()
@@ -137,10 +140,8 @@ public class Card : MonoBehaviour, ISelectableAnimator
             layout.spacing = new Vector2(0, 5);
             layout.padding.top = layout.padding.left = layout.padding.right = 20;
             layout.padding.bottom = 10;
-            _background.rectTransform.anchorMax = Vector2.one;
-            _background.rectTransform.anchorMin = Vector2.zero;
-            _background.rectTransform.offsetMin = Vector2.zero;
-            _background.rectTransform.offsetMax = Vector2.zero;
+            StyleDefaultUtils.SetFullScreen(_background.rectTransform);
+            _background.animationEnabled = true;
         }
         if (!_image)
         {
@@ -170,27 +171,6 @@ public class Card : MonoBehaviour, ISelectableAnimator
     public void SetUp()
     {
         if (!_manager) _manager = UiSettings.GetSettings();
-    }
-    public void SetEnabled(bool enabled)
-    {
-        return;
-    }
-
-    public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
-    {
-        if (!_text)
-            return;
-        if (mode != ISelectableAnimator.Mode.Default)
-        {
-            var lerpValue = _manager.DefaultTextSelectionCurve.Evaluate(currentValue);
-            _text.color = Color.Lerp(_manager.GetTextColorByEnum(TextColor), _manager.GetImageColorByEnum(UiSettings.ColorName.Accent), lerpValue);
-            _text.transform.localScale = _textScale*lerpValue;
-        }
-        else
-        {
-            _manager.SetTextColor(_text, UiSettings.ColorName.Background);
-            _text.transform.localScale = _textScale;
-        }
     }
 }
 

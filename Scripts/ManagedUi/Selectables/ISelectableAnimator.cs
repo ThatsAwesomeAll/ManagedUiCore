@@ -10,7 +10,7 @@ public interface ISelectableAnimator
         Confirmed
     }
 
-    public void SetEnabled(bool enabled);
+    public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation = true);
 
     public void LerpTo(Mode mode, float currentValue);
 }

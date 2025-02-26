@@ -20,7 +20,7 @@ public class Card : MonoBehaviour
 
     public string Text = "This should be some text. Try things out. Get wrapped. Long Long Longer.";
     public Sprite Image;
-    public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.BackgroundDarker;
+    public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.Background;
     public UiSettings.ColorName TitleColor = UiSettings.ColorName.BackgroundDarker;
     public UiSettings.ColorName TextColor = UiSettings.ColorName.Background;
 
@@ -86,6 +86,7 @@ public class Card : MonoBehaviour
         StyleDefaultUtils.StyleSelectionMarker(animationTemp);
         _selectionImage = animationTemp;
         _selectionImage.enabled = false;
+        _selectionImage.confirmColor = new ManagedColor( UiSettings.ColorName.Lighter);
     }
 
     private void SetUpAllText()
@@ -143,7 +144,7 @@ public class Card : MonoBehaviour
             StyleDefaultUtils.SetFullScreen(_background.rectTransform);
             _background.animationEnabled = true;
             _background.selectColor = new ManagedColor(UiSettings.ColorName.Background);
-            _background.confirmColor = new ManagedColor(UiSettings.ColorName.Lighter);
+            _background.confirmColor = new ManagedColor(UiSettings.ColorName.BackgroundDarker);
         }
         if (!_image)
         {

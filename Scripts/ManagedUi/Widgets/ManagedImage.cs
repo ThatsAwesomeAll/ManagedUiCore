@@ -13,12 +13,12 @@ namespace ManagedUi.Widgets
 {
 
 [Serializable]
-class ManagedColor
+public class ManagedColor
 {
-    [SerializeField] private bool _fixedColor;
-    [SerializeField] private bool _useInAnimation;
-    [SerializeField] private Color _customColor;
-    [SerializeField] private UiSettings.ColorName _theme;
+    [SerializeField] private bool _fixedColor = true;
+    [SerializeField] private bool _useInAnimation = false;
+    [SerializeField] private Color _customColor = Color.white;
+    [SerializeField] private UiSettings.ColorName _theme = UiSettings.ColorName.Main;
 
     public bool IsFixedColor() => _fixedColor;
     public bool UseInAnimation() => _useInAnimation;
@@ -32,12 +32,21 @@ class ManagedColor
     {
         _fixedColor = false;
         _customColor = color;
+        _useInAnimation = true;
+    }
+    
+    public ManagedColor(bool useInAnimation)
+    {
+        _fixedColor = false;
+        _useInAnimation = useInAnimation;
+        _customColor = Color.white;
     }
 
     public ManagedColor(UiSettings.ColorName theme)
     {
         _theme = theme;
         _fixedColor = true;
+        _useInAnimation = true;
     }
 }
 
@@ -54,8 +63,8 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     [SerializeField] private UiSettings.ColorName _colorTheme = UiSettings.ColorName.Background;
     [SerializeField] private Color _customColorSave = Color.white;
 
-    [SerializeField] private ManagedColor selectColor;
-    [SerializeField] private ManagedColor confirmColor;
+    public ManagedColor selectColor = new ManagedColor(false);
+    public ManagedColor confirmColor = new ManagedColor(false);
 
     public Vector2Int growth = Vector2Int.one;
     public bool ignoreLayout = false;

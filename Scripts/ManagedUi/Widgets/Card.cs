@@ -142,6 +142,8 @@ public class Card : MonoBehaviour
             layout.padding.bottom = 10;
             StyleDefaultUtils.SetFullScreen(_background.rectTransform);
             _background.animationEnabled = true;
+            _background.selectColor = new ManagedColor(UiSettings.ColorName.Background);
+            _background.confirmColor = new ManagedColor(UiSettings.ColorName.Lighter);
         }
         if (!_image)
         {

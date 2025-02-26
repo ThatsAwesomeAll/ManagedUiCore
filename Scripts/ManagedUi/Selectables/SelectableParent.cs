@@ -18,8 +18,10 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
 
     public bool _customAnimation = false;
     [SerializeField] private float _animationDuration = 0.1f;
+    [SerializeField] private float _animationConfirmedDuration = 0.1f;
     [SerializeField] private float _animationStrengthPercent = 5f;
     [SerializeField] private Ease _animationEase = Ease.Linear;
+
     public float AnimationDuration
     {
         get
@@ -30,7 +32,20 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             }
             return _animationDuration;
         }
+    }    
+    
+    public float AnimationConfirmedDuration
+    {
+        get
+        {
+            if (!_customAnimation && _manager)
+            {
+                return _manager.DefaultConfirmedDuration;
+            }
+            return _animationConfirmedDuration;
+        }
     }
+
     public float AnimationStrengthPercent
     {
         get
@@ -42,6 +57,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             return _animationStrengthPercent;
         }
     }
+
     public Ease AnimationEase
     {
         get
@@ -50,7 +66,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             {
                 return Ease.Default;
             }
-            return _animationEase; 
+            return _animationEase;
         }
     }
 
@@ -142,16 +158,13 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         SetUpSettings();
     }
 
-    private void AnimateVisual(float endValuePercent, float inDuration, ISelectableAnimator.Mode mode = default, bool withFadeout = false)
+    private void AnimateVisual(float endSizeScalingPercent, float inDuration, ISelectableAnimator.Mode mode = default, ISelectableAnimator.Mode fadeoutMode = default)
     {
         _currentScaleTween.Stop();
-        float scalingValue = 1 + endValuePercent*0.01f;
+        float scalingValue = 1 + endSizeScalingPercent*0.01f;
         Vector3 startSize = transform.localScale;
         Vector3 endSize = Vector3.one*scalingValue;
-        if (startSize == endSize)
-        {
-            return;
-        }
+
         _currentScaleTween = Tween.Custom(0.0f, 1.0f, inDuration, (float currentValue) =>
         {
             transform.localScale = Vector3.Lerp(startSize, endSize, currentValue);
@@ -160,18 +173,19 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
                 animators.LerpTo(mode, currentValue);
             }
         }, ease: AnimationEase);
-        if (withFadeout)
+        if (fadeoutMode == mode)
         {
-            _currentScaleTween.OnComplete(() =>
-            {
-                foreach (var animators in _selectionAnimators)
-                {
-                    animators.SetEnabled(ISelectableAnimator.Mode.Default);
-                    animators.LerpTo(ISelectableAnimator.Mode.Default, 1);
-                }
-                transform.localScale = startSize;
-            });
+            return;
         }
+        _currentScaleTween.OnComplete(() =>
+        {
+            foreach (var animators in _selectionAnimators)
+            {
+                animators.SetEnabled(fadeoutMode);
+                animators.LerpTo(fadeoutMode, 1);
+            }
+            transform.localScale = startSize;
+        });
     }
 
     private void EnableVisualImage(ISelectableAnimator.Mode mode)
@@ -188,7 +202,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         EnableVisualImage(mode);
         if (selected)
         {
-            AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Selected);
+            AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Selected,ISelectableAnimator.Mode.Selected);
         }
         else
         {
@@ -199,7 +213,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     private void AnimateConfirm()
     {
         EnableVisualImage(ISelectableAnimator.Mode.Confirmed);
-        AnimateVisual(AnimationStrengthPercent, AnimationDuration, ISelectableAnimator.Mode.Confirmed, true);
+        AnimateVisual(AnimationStrengthPercent, AnimationConfirmedDuration, ISelectableAnimator.Mode.Confirmed, ISelectableAnimator.Mode.Selected);
     }
 
     public void OnPointerClick(PointerEventData eventData)

@@ -32,10 +32,12 @@ public class UiSettings : ScriptableObject
 
     [Header("Selection Animation")]
     [SerializeField] private float defaultSelectionDuration = 0.3f;
+    [SerializeField] private float defaultConfirmedDuration = 0.1f;
     [SerializeField] private float defaultSelectionStrength = 5f;
     [SerializeField] private AnimationCurve defaultTextSelectionCurve = new AnimationCurve();
 
     public float DefaultSelectionDuration => defaultSelectionDuration;
+    public float DefaultConfirmedDuration => defaultConfirmedDuration;
     public float DefaultSelectionStrength => defaultSelectionStrength;
     public AnimationCurve DefaultTextSelectionCurve => defaultTextSelectionCurve;
     

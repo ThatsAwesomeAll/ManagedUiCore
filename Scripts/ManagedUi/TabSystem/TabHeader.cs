@@ -161,6 +161,9 @@ public class TabHeader : MonoBehaviour
         button.Image.FixColor = true;
         button.Image.ColorTheme = UiSettings.ColorName.Light;
         button.ButtonText = defaultText;
+        button.Image.animationEnabled = true;
+        button.Image.selectColor = new ManagedColor(UiSettings.ColorName.Lighter);
+        button.Image.confirmColor = new ManagedColor(UiSettings.ColorName.Accent);
         return button;
     }
 
@@ -185,7 +188,9 @@ public class TabHeader : MonoBehaviour
     private SimpleButton AddTab(ManagedTab tab)
     {
         var button = CreateControlButton(tab.Title, tab.Title);
-        button.Image.ColorTheme = UiSettings.ColorName.Main;
+        button.Image.ColorTheme = UiSettings.ColorName.Accent;
+        button.Image.selectColor = new ManagedColor(UiSettings.ColorName.Accent);
+        button.Image.confirmColor = new ManagedColor(UiSettings.ColorName.Dark);
         button.transform.SetSiblingIndex(tab.OrderIndex);
         button.Selectable.OnConfirmed += parent =>
         {

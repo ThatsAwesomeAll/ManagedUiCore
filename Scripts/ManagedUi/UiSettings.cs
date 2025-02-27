@@ -9,6 +9,9 @@ namespace ManagedUi
 public class UiSettings : ScriptableObject
 {
 
+    public Action OnSettingsChanged;
+    
+    
     [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
     [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
     [Header("Default Image settings")]

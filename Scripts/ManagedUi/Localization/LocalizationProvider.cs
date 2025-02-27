@@ -26,8 +26,8 @@ public static class LocalizationProvider
         {
             return key;
         }
-        if (!IsLocalizedKeyAvailable(tableName, key))
-            return "KEY N/A: $" + key + "$";
+        if (!IsLocalizedKeyAvailable(tableName, key)) return "KEY N/A: $" + key + "$";
+        
         var myLocalizedString = new LocalizedString(tableName, key);
         return myLocalizedString.GetLocalizedString();
 #else

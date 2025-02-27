@@ -18,9 +18,9 @@ MonoBehaviour:
     ColorMain: {r: 0.9137255, g: 0.30980393, b: 0.21568628, a: 1}
     ColorLight: {r: 0.71310115, g: 0.71599996, b: 0.6812145, a: 1}
     ColorLighter: {r: 0.97900003, g: 0.97900003, b: 0.9311378, a: 1}
-    ColorDark: {r: 0.22352941, g: 0.24313726, b: 0.25490198, a: 1}
-    ColorDarker: {r: 0.13679999, g: 0.14879999, b: 0.156, a: 1}
-    ColorBackground: {r: 0.04605731, g: 0.047169805, b: 0.047169805, a: 1}
+    ColorDark: {r: 0.30460128, g: 0.33238584, b: 0.3490566, a: 1}
+    ColorDarker: {r: 0.21747063, g: 0.23981845, b: 0.254717, a: 1}
+    ColorBackground: {r: 0.15409805, g: 0.14770588, b: 0.1764706, a: 1}
     ColorBackgroundDarker: {r: 0, g: 0, b: 0, a: 1}
   TextColors:
     ColorAccent: {r: 0.1, g: 0.1, b: 0.1, a: 1}
@@ -47,7 +47,8 @@ MonoBehaviour:
     SubTextStyle:
       textMinMax: {x: 10, y: 30}
   defaultSelectionDuration: 0.3
-  defaultSelectionStrength: 5
+  defaultConfirmedDuration: 0.2
+  defaultSelectionStrength: 2.15
   defaultTextSelectionCurve:
     serializedVersion: 2
     m_Curve:

@@ -1,10 +1,7 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
-using NUnit.Framework.Internal;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagedUi.Widgets
 {
@@ -29,10 +26,9 @@ public class Card : MonoBehaviour
 
     [SerializeField] ManagedImage _background;
     [SerializeField] ManagedImage _selectionImage;
-    [SerializeField] TextMeshProUGUI _title;
-    [SerializeField] TextMeshProUGUI _text;
+    [SerializeField] ManagedText _title;
+    [SerializeField] ManagedText _text;
     [SerializeField] RectTransform _rect;
-    private Vector3 _textScale;
 
 
     protected void Awake()
@@ -91,7 +87,7 @@ public class Card : MonoBehaviour
 
     private void SetUpAllText()
     {
-        var allText = GetComponentsInChildren<TextMeshProUGUI>();
+        var allText = GetComponentsInChildren<ManagedText>();
         foreach (var text in allText)
         {
             switch (text.name)
@@ -114,7 +110,6 @@ public class Card : MonoBehaviour
             _text = CreateText("Text", Text, UiSettings.TextStyle.Text, TextColor);
             _text.transform.SetAsLastSibling();
         }
-        _textScale = _text.transform.localScale;
     }
 
     private void SetUpImages()
@@ -154,13 +149,13 @@ public class Card : MonoBehaviour
         }
     }
 
-    private TextMeshProUGUI CreateText(string textName, string defaultText, UiSettings.TextStyle style, UiSettings.ColorName background)
+    private ManagedText CreateText(string textName, string defaultText, UiSettings.TextStyle style, UiSettings.ColorName background)
     {
         var textChild = new GameObject(textName);
         textChild.transform.SetParent(_background.transform, false);
-        var text = textChild.AddComponent<TextMeshProUGUI>();
-        text.text = defaultText;
-        _manager.SetTextAutoFormat(text, style, background);
+        var text = textChild.AddComponent<ManagedText>();
+        text.SetTextWithTranslation(defaultText);
+        text.Format(background);
         return text;
     }
     private ManagedImage CreateImage(string imageName, Transform parent)

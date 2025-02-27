@@ -1,6 +1,9 @@
+using ManagedUi.Localization;
 using ManagedUi.Selectables;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Components;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -8,16 +11,25 @@ using UnityEditor;
 
 namespace ManagedUi.Widgets
 {
-public class ManagedText : TextMeshProUGUI, ISelectableAnimator
+[ExecuteInEditMode]
+[RequireComponent(typeof(TextMeshProUGUI))]
+public class ManagedText : MonoBehaviour, ISelectableAnimator
 {
     [Header("Style")]
     public bool animationEnabled = false;
 
     [SerializeField] private bool _fixColor = true;
     [SerializeField] private UiSettings.ColorName _colorTheme = UiSettings.ColorName.Main;
+    [SerializeField] private Color _customColorSave = Color.white;
 
-    private Color _saveCustomColor;
+    public ManagedColor selectColor = new ManagedColor(false);
+    public ManagedColor confirmColor = new ManagedColor(false);
+
     private Color _animationSavedColor;
+    private Vector3 _savedSize;
+    private TextMeshProUGUI _text;
+
+    private string _save_original_text;
 
     public UiSettings.ColorName ColorTheme
     {
@@ -41,30 +53,62 @@ public class ManagedText : TextMeshProUGUI, ISelectableAnimator
             }
             else
             {
-                SetColorByFixed(_saveCustomColor);
+                SetColorByFixed(_customColorSave);
             }
         }
+    }
+
+    private void OnEnable()
+    {
+        _text = GetComponent<TextMeshProUGUI>();
+        LocalizationProvider.OnLocalizationChanged -= UpdateOnLocalChanged;
+        LocalizationProvider.OnLocalizationChanged += UpdateOnLocalChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationProvider.OnLocalizationChanged -= UpdateOnLocalChanged;
+    }
+
+    private void UpdateOnLocalChanged()
+    {
+        SetTextWithTranslation(_save_original_text);
+        _text.SetAllDirty();
+    }
+
+    public void SetTextWithTranslation(string text, bool localization = true, LocalizationType.Table table = LocalizationType.Table.UIMenu)
+    {
+        _text.text = text;
+        _save_original_text = text;
+        if (localization)
+        {
+            _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
+        }
+    }
+
+    public void Format(UiSettings.ColorName theme)
+    {
+        _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, theme);
     }
 
     public void SetColorByTheme(UiSettings.ColorName currentEnumValue)
     {
         if (!_manager) return;
         var colorTemp = _manager.GetTextColorByEnum(currentEnumValue);
-        _saveCustomColor = color;
         _colorTheme = currentEnumValue;
-        color = colorTemp;
+        _text.color = colorTemp;
     }
 
     public void SetColorByFixed(Color colorTypeColorValue)
     {
-        _saveCustomColor = color;
-        color = colorTypeColorValue;
+        _text.color = colorTypeColorValue;
     }
 
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
     {
-        _animationSavedColor = color;
-        if (animationEnabled) gameObject.SetActive(enabled);
+        _animationSavedColor = _text.color;
+        this.enabled = enableAnimation;
+        gameObject.SetActive(enableAnimation);
     }
 
     public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
@@ -73,33 +117,52 @@ public class ManagedText : TextMeshProUGUI, ISelectableAnimator
         switch (mode)
         {
             case ISelectableAnimator.Mode.Default:
-                LerpColor(_saveCustomColor, ColorTheme, currentValue);
+                LerpSize(_savedSize, Vector3.one, currentValue);
+                LerpColor(_customColorSave, ColorTheme, currentValue);
                 break;
             case ISelectableAnimator.Mode.Selected:
+                LerpSize(_savedSize, Vector3.one, currentValue);
+                if (selectColor?.UseInAnimation() != null && selectColor.UseInAnimation())
+                {
+                    LerpColor(selectColor.GetColor(_manager), currentValue);
+                    break;
+                }
                 LerpColor(_manager.SelectedColor, currentValue);
                 break;
             case ISelectableAnimator.Mode.Confirmed:
+                LerpSize(_savedSize, Vector3.one, currentValue);
+                if (confirmColor?.UseInAnimation() != null && confirmColor.UseInAnimation())
+                {
+                    LerpColor(confirmColor.GetColor(_manager), currentValue);
+                    break;
+                }
                 LerpColor(_manager.ConfirmedColor, currentValue);
                 break;
         }
     }
+
+    private void LerpSize(Vector3 startSize, Vector3 targetSize, float currentValue)
+    {
+        transform.localScale = Vector3.Lerp(startSize, targetSize, currentValue);
+    }
+
     private void LerpColor(Color customColor, UiSettings.ColorName theme, float currentValue)
     {
         if (_fixColor)
         {
-            color = Color.Lerp(_animationSavedColor, _manager.GetTextColorByEnum(theme), currentValue);
+            _text.color = Color.Lerp(_animationSavedColor, _manager.GetTextColorByEnum(theme), currentValue);
         }
         else
         {
-            color = Color.Lerp(_animationSavedColor, customColor, currentValue);
+            _text.color = Color.Lerp(_animationSavedColor, customColor, currentValue);
         }
     }
     private void LerpColor(Color customColor, float currentValue)
     {
-        color = Color.Lerp(_animationSavedColor, customColor, currentValue);
+        _text.color = Color.Lerp(_animationSavedColor, customColor, currentValue);
     }
-    
-    protected override void Awake()
+
+    void Awake()
     {
         SetUp();
     }
@@ -127,15 +190,18 @@ public class ManagedTextEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        
+
         var UIManagerAsset = serializedObject.FindProperty("_manager");
         var animationEnabled = serializedObject.FindProperty("animationEnabled");
-        var colorType = serializedObject.FindProperty("imageColor");
+        var selectColor = serializedObject.FindProperty("selectColor");
+        var confirmColor = serializedObject.FindProperty("confirmColor");
+
+
         var fixColor = serializedObject.FindProperty("_fixColor");
+        var customColor = serializedObject.FindProperty("_customColorSave");
         var colorTheme = serializedObject.FindProperty("_colorTheme");
 
         EditorUtils.DrawProperty(fixColor, "Color fixed", "Fix your color by Theme");
-        EditorUtils.DrawProperty(animationEnabled, "Auto Animation", "enable automatic animation");
         if (fixColor.boolValue)
         {
             EditorUtils.DrawProperty(colorTheme, "Color", "Select Color");
@@ -145,13 +211,13 @@ public class ManagedTextEditor : Editor
         }
         else
         {
-            Color temp = colorType.colorValue;
-            EditorUtils.DrawProperty(colorType, "Color", "Select Color");
-            if (temp != colorType.colorValue)
-            {
-                text.SetColorByFixed(colorType.colorValue);
-            }
+            EditorUtils.DrawProperty(customColor, "Color", "Select Color");
+            text.SetColorByFixed(customColor.colorValue);
         }
+        EditorUtils.DrawProperty(animationEnabled, "Animation", "enable automatic animation");
+        EditorUtils.DrawProperty(selectColor, "Custom SelectColor", "enable automatic animation");
+        EditorUtils.DrawProperty(confirmColor, "Custom SelectColor", "enable automatic animation");
+
 
         if (UIManagerAsset != null)
         {

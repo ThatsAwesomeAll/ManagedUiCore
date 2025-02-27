@@ -28,7 +28,7 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     private SelectableParent _selectable;
     public SelectableParent Selectable => _selectable;
     private ManagedImage _image;
-    private TextMeshProUGUI _text;
+    private ManagedText _text;
 
     public string ButtonText
     {
@@ -53,12 +53,12 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             _image.ColorTheme = UiSettings.ColorName.Main;
             _image.SetAsDefaultBackground();
         }
-        _text ??= GetComponentInChildren<TextMeshProUGUI>();
+        _text ??= GetComponentInChildren<ManagedText>();
         if (!_text)
         {
             var textChild = new GameObject(C_ButtonTextObjectName);
             textChild.transform.SetParent(transform, false);
-            _text = textChild.AddComponent<TextMeshProUGUI>();
+            _text = textChild.AddComponent<ManagedText>();
         }
         if (getTextFromName)
         {
@@ -70,10 +70,10 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
 
     private void SetText()
     {
-        _text.text = _buttonText;
+        _text.SetTextWithTranslation(_buttonText);
         if (autoFormat)
         {
-            _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, _image.ColorTheme);
+            _text.Format(_image.ColorTheme);
         }
     }
     

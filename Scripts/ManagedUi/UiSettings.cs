@@ -1,7 +1,6 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagedUi
 {
@@ -12,7 +11,6 @@ public class UiSettings : ScriptableObject
 
     [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
     [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
-
     [Header("Default Image settings")]
     [SerializeField] Sprite _defaultImage;
 

@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem.HID;
@@ -65,6 +66,12 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             _buttonText = name;
         }
         _selectable = GetComponent<SelectableParent>();
+        StartCoroutine(DelayTextOnEnable());
+    }
+
+    IEnumerator DelayTextOnEnable()
+    {
+        yield return new WaitForEndOfFrame(); 
         SetText();
     }
 

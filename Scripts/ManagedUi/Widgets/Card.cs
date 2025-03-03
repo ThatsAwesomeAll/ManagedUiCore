@@ -140,6 +140,7 @@ public class Card : MonoBehaviour
             _background.animationEnabled = true;
             _background.selectColor = new ManagedColor(UiSettings.ColorName.Background);
             _background.confirmColor = new ManagedColor(UiSettings.ColorName.BackgroundDarker);
+            _background.SetAsDefaultBackground();
         }
         if (!_image)
         {

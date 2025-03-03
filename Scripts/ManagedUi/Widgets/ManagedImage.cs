@@ -147,7 +147,7 @@ public class ManagedImageEditor : Editor
         animationProps.Add(disableOnAnimationEnd);
         EditorUtils.DrawPropertyList(animationProps, "Animation | Visible Animation Only", "enable automatic animation", 80);
         EditorUtils.DrawProperty(selectColor, "Custom SelectColor", "enable automatic animation");
-        EditorUtils.DrawProperty(confirmColor, "Custom SelectColor", "enable automatic animation");
+        EditorUtils.DrawProperty(confirmColor, "Custom ConfirmColor", "enable automatic animation");
 
         EditorUtils.DrawProperty(sprite, "Sprite", "Set Sprite");
 

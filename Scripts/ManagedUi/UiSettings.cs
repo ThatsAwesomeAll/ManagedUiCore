@@ -74,6 +74,7 @@ public class UiSettings : ScriptableObject
     {
         return GetImageColorByEnum(colorTheme, ImageColors);
     }  
+    
     public Color GetTextColorByEnum(ColorName colorTheme)
     {
         return GetImageColorByEnum(colorTheme, TextColors);
@@ -90,9 +91,8 @@ public class UiSettings : ScriptableObject
     }
 
 
-    public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style, ColorName background)
+    public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style)
     {
-        text.color = GetImageColorByEnum(background, TextColors);
         ScaleRectTrans(text.rectTransform);
         text.enableAutoSizing = true;
         var textSize = style switch

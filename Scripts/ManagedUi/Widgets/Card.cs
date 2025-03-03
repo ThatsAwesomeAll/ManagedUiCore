@@ -3,6 +3,9 @@ using ManagedUi.Selectables;
 using Unity.VisualScripting;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace ManagedUi.Widgets
 {
 
@@ -14,7 +17,6 @@ public class Card : MonoBehaviour
 
     [Header("Content")]
     public string Title = "Card Title";
-
     public string Text = "This should be some text. Try things out. Get wrapped. Long Long Longer.";
     public Sprite Image;
     public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.Background;
@@ -22,15 +24,14 @@ public class Card : MonoBehaviour
     public UiSettings.ColorName TextColor = UiSettings.ColorName.Background;
 
     [Header("UI Elements")]
-    [SerializeField] ManagedImage _image;
-
+    [SerializeField] ManagedImage _imageHolder;
     [SerializeField] ManagedImage _background;
     [SerializeField] ManagedImage _selectionImage;
-    [SerializeField] ManagedText _title;
-    [SerializeField] ManagedText _text;
+    [SerializeField] ManagedText _titleTextBox;
+    [SerializeField] ManagedText _textTextBox;
     [SerializeField] RectTransform _rect;
 
-
+ 
     protected void Awake()
     {
         if (!_rect)
@@ -54,12 +55,22 @@ public class Card : MonoBehaviour
     {
         if (Image)
         {
-            _image.sprite = Image;
+            _imageHolder.sprite = Image;
         }
         else
         {
-            _image.sprite = _manager.DefaultImage();
+            _imageHolder.sprite = _manager.DefaultImage();
         }
+    }
+    
+    public void RefreshContent()
+    {
+        SetContent();
+        _textTextBox.SetTextWithTranslation(Text);
+        _titleTextBox.SetTextWithTranslation(Title);
+        _background.basicColor.SetColorByTheme(BackgroundTheme,_manager);
+        _textTextBox.SetBasicColorTheme(TextColor);
+        _titleTextBox.SetBasicColorTheme(TitleColor);
     }
 
     private void SetupSelectionAnimation()
@@ -82,7 +93,7 @@ public class Card : MonoBehaviour
         StyleDefaultUtils.StyleSelectionMarker(animationTemp);
         _selectionImage = animationTemp;
         _selectionImage.enabled = false;
-        _selectionImage.confirmColor = new ManagedColor( UiSettings.ColorName.Lighter);
+        _selectionImage.confirmColor = new ManagedColor(UiSettings.ColorName.Lighter);
     }
 
     private void SetUpAllText()
@@ -93,22 +104,22 @@ public class Card : MonoBehaviour
             switch (text.name)
             {
                 case "Title":
-                    _title ??= text;
+                    _titleTextBox ??= text;
                     break;
                 case "Text":
-                    _text ??= text;
+                    _textTextBox ??= text;
                     break;
             }
         }
-        if (!_title)
+        if (!_titleTextBox)
         {
-            _title = CreateText("Title", Title, UiSettings.TextStyle.Highlight, TitleColor);
-            _title.transform.SetAsLastSibling();
+            _titleTextBox = CreateText("Title", Title, UiSettings.TextStyle.Highlight, TitleColor);
+            _titleTextBox.transform.SetAsLastSibling();
         }
-        if (!_text)
+        if (!_textTextBox)
         {
-            _text = CreateText("Text", Text, UiSettings.TextStyle.Text, TextColor);
-            _text.transform.SetAsLastSibling();
+            _textTextBox = CreateText("Text", Text, UiSettings.TextStyle.Text, TextColor);
+            _textTextBox.transform.SetAsLastSibling();
         }
     }
 
@@ -123,7 +134,7 @@ public class Card : MonoBehaviour
                     _background ??= image;
                     break;
                 case "Image":
-                    _image ??= image;
+                    _imageHolder ??= image;
                     break;
             }
         }
@@ -142,11 +153,11 @@ public class Card : MonoBehaviour
             _background.confirmColor = new ManagedColor(UiSettings.ColorName.BackgroundDarker);
             _background.SetAsDefaultBackground();
         }
-        if (!_image)
+        if (!_imageHolder)
         {
-            _image = CreateImage("Image", _background.transform);
-            _image.transform.SetAsFirstSibling();
-            _image.growth = Vector2Int.one*5;
+            _imageHolder = CreateImage("Image", _background.transform);
+            _imageHolder.transform.SetAsFirstSibling();
+            _imageHolder.growth = Vector2Int.one*5;
         }
     }
 
@@ -171,6 +182,61 @@ public class Card : MonoBehaviour
     {
         if (!_manager) _manager = UiSettings.GetSettings();
     }
-}
 
+}
+#if UNITY_EDITOR
+[UnityEditor.CustomEditor(typeof(Card))]
+public class CardEditor : Editor
+{
+    private Card card;
+
+    private void OnEnable()
+    {
+        card = (Card) target;
+        card.SetUp();
+    }
+
+
+    public override void OnInspectorGUI()
+    {
+
+        var UIManagerAsset = serializedObject.FindProperty("_manager");
+        
+        var _title = serializedObject.FindProperty("Title");
+        var _text = serializedObject.FindProperty("Text");
+        var Image = serializedObject.FindProperty("Image");
+        var _backgroundTheme = serializedObject.FindProperty("BackgroundTheme");
+        var _textColor = serializedObject.FindProperty("TextColor");
+        var _titleColor = serializedObject.FindProperty("TitleColor");
+
+
+        EditorGUI.BeginChangeCheck();
+        EditorUtils.DrawProperty(_title, "Title", "enable automatic animation");
+        EditorUtils.DrawProperty(_text, "Text", "enable automatic animation");
+        
+        EditorUtils.DrawProperty(Image, "Image", "enable automatic animation");
+        EditorUtils.DrawProperty(_backgroundTheme, "Color", "enable automatic animation");
+        EditorUtils.DrawProperty(_textColor, "Title Theme", "enable automatic animation");
+        EditorUtils.DrawProperty(_titleColor, "Text Theme", "enable automatic animation");
+
+
+        bool updateRequired = EditorGUI.EndChangeCheck();
+        if (UIManagerAsset != null)
+        {
+            EditorUtils.DrawProperty(UIManagerAsset, "Manager Asset", "Dont change this");
+        }
+        else
+        {
+            EditorGUILayout.LabelField(new GUIContent("NO MANAGER FOUND"), GUILayout.Width(120));
+        }
+
+        serializedObject.ApplyModifiedProperties();
+        if (updateRequired)
+        {
+            card.RefreshContent();
+        }
+        EditorUtils.DrawCustomHeader();
+    }
+}
+#endif
 }

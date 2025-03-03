@@ -14,24 +14,26 @@ public class ManagedColor
 
 
     public UiSettings.ColorName Theme => _theme;
-    
+
     public bool IsFixedColor() => _fixedColor;
     public void SetFixedColor(bool fixedColor)
     {
         _fixedColor = fixedColor;
     }
-    
+
     public bool UseInAnimation() => _useInAnimation;
 
-    public Color GetColor(UiSettings settings)
+    public Color GetColor(UiSettings settings, bool isTextColor = false)
     {
-        return _fixedColor ? settings.GetImageColorByEnum(_theme) : _customColor;
+        if (!_fixedColor) return _customColor;
+        return isTextColor ? settings.GetTextColorByEnum(_theme) :  settings.GetImageColorByEnum(_theme);
     }
 
-    public Color SetColorByTheme(UiSettings.ColorName currentTheme, UiSettings _manager)
+    public Color SetColorByTheme(UiSettings.ColorName currentTheme, UiSettings _manager, bool ColorAsText = false)
     {
         if (!_manager) return Color.white;
-        var colorTemp = _manager.GetImageColorByEnum(currentTheme);
+        Color colorTemp;
+        colorTemp = ColorAsText ? _manager.GetTextColorByEnum(currentTheme) : _manager.GetImageColorByEnum(currentTheme);
         _theme = currentTheme;
         return colorTemp;
     }
@@ -42,7 +44,7 @@ public class ManagedColor
         _customColor = color;
         _useInAnimation = true;
     }
-    
+
     public ManagedColor(bool useInAnimation)
     {
         _fixedColor = false;
@@ -61,7 +63,7 @@ public class ManagedColor
         _customColor = colorTypeColorValue;
         return _customColor;
     }
-    
+
 }
 
 

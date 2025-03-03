@@ -2,8 +2,6 @@ using ManagedUi.Localization;
 using ManagedUi.Selectables;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Components;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,9 +16,9 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     [Header("Style")]
     public bool animationEnabled = false;
 
-    public ManagedColor basicColor = new ManagedColor(false);
-    public ManagedColor selectColor = new ManagedColor(false);
-    public ManagedColor confirmColor = new ManagedColor(false);
+    [SerializeField] private ManagedColor basicColor = new ManagedColor(UiSettings.ColorName.Background);
+    [SerializeField] private ManagedColor selectColor = new ManagedColor(UiSettings.ColorName.Background);
+    [SerializeField] private ManagedColor confirmColor = new ManagedColor(UiSettings.ColorName.Background);
 
     private Color _animationSavedColor;
     private Vector3 _savedSize;
@@ -29,33 +27,12 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 
     private string _saveOriginalText;
 
-    public UiSettings.ColorName ColorTheme
-    {
-        get => basicColor.Theme;
-        set
-        {
-            if (_text != null)
-            {
-                _text.color = basicColor.SetColorByTheme(value, _manager);
-            }
-        }
-    }
-    
-    public bool FixColor
-    {
-        get => basicColor.IsFixedColor();
-        set
-        {
-            basicColor.SetFixedColor(value);
-            UpdateColor();
-        }
-    }
     
     public void UpdateColor()
     {
         if (_text != null)
         {
-            _text.color = basicColor.GetColor(_manager);
+            _text.color = basicColor.GetColor(_manager, true);
         }
     }
 
@@ -89,10 +66,18 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
             _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
         }
     }
-
-    public void Format(UiSettings.ColorName theme)
+    
+    public void SetBasicColorTheme(UiSettings.ColorName textColor)
     {
-        _manager.SetTextAutoFormat(_text, UiSettings.TextStyle.Highlight, theme);
+        basicColor.SetFixedColor(true);
+        basicColor.SetColorByTheme(textColor, _manager, true);
+        UpdateColor();
+    }
+
+    public void Format(UiSettings.ColorName theme, UiSettings.TextStyle style = UiSettings.TextStyle.Text)
+    {
+        _manager.SetTextAutoFormat(_text, style);
+        if (_text) _text.color =  basicColor.SetColorByTheme(theme, _manager, true);
     }
     
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)

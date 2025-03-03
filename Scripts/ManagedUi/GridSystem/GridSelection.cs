@@ -53,7 +53,7 @@ public class GridSelection : MonoBehaviour, ISelectableManager
 
     public void OnEnable()
     {
-        SetupGrid();
+        SetupGrid(true);
         if (inputManager != null)
         {
             inputManager.OnDown += () =>
@@ -111,20 +111,20 @@ public class GridSelection : MonoBehaviour, ISelectableManager
                 Confirmed();
             };
         }
-        StopCoroutine(SetUp());
+        StopCoroutine(SetUp(true));
     }
 
-    public void SetupGrid()
+    public void SetupGrid(bool setDefault)
     {
         _selectables = GetComponentsInChildren<SelectableParent>();
         if (_selectables.Length == 0)
         {
             return;
         }
-        StartCoroutine(SetUp());
+        StartCoroutine(SetUp(setDefault));
     }
 
-    IEnumerator SetUp()
+    IEnumerator SetUp(bool setDefault)
     {
         yield return new WaitForEndOfFrame();
         DeselectGrid();
@@ -134,13 +134,19 @@ public class GridSelection : MonoBehaviour, ISelectableManager
             _currentSelected.SetSelected(true);
             _currentSelectedIndex = _currentSelected.GridPosition;
         }
+        if (!setDefault) yield break;
+        SelectDefault();
+    }
+
+    public void SelectDefault()
+    {
         // Set most center element to be default
         Vector2Int currentMostCenter = new Vector2Int(0, 0);
         var currentTarget = _grid.FirstOrDefault(x => x.Value == currentMostCenter);
         if (currentTarget.Key != null)
         {
             currentTarget.Key.SetSelected(true);
-            yield break;
+            return;
         }
 
         float maxDistance = float.MaxValue;

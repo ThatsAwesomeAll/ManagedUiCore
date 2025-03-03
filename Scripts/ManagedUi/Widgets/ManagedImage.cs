@@ -59,7 +59,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
         _animationSavedColor = color;
         if (!animationEnabled) return;
         bool tempEnabled = (mode != ISelectableAnimator.Mode.Default) || !disableOnAnimationEnd;
-        this.enabled = tempEnabled;
+        enabled = tempEnabled;
         gameObject.SetActive(tempEnabled);
     }
 

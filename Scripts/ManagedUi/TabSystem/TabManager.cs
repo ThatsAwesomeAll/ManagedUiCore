@@ -30,7 +30,7 @@ public class TabManager : MonoBehaviour
         Content ??= GetComponent<TabContentContainer>();
         Content.onSeletedTabChanged += UpdateGrid;
         
-        _gridSelection.SetupGrid();
+        _gridSelection.SetupGrid(true);
     }
     
     public void OnDisable()
@@ -40,7 +40,7 @@ public class TabManager : MonoBehaviour
     
     private void UpdateGrid(ManagedTab obj)
     {
-        _gridSelection?.SetupGrid();
+        _gridSelection?.SetupGrid(false);
     }
 }
 }

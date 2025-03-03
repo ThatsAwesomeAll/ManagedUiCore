@@ -27,7 +27,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     public Vector2Int growth = Vector2Int.one;
     public bool ignoreLayout = false;
 
-    private Color _animationSavedColor;
+    private ColorAnimation _colorAnimation;
 
     public UiSettings.ColorName ColorTheme { get => basicColor.Theme; set => base.color = basicColor.SetColorByTheme(value, _manager); }
 
@@ -39,6 +39,13 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
             basicColor.SetFixedColor(value);
             UpdateColor();
         }
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        _colorAnimation = new ColorAnimation(_manager,
+            basicColor, selectColor, confirmColor);
     }
 
     public void UpdateColor()
@@ -56,7 +63,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
 
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
     {
-        _animationSavedColor = color;
+        _colorAnimation?.SetEnabled(base.color);
         if (!animationEnabled) return;
         bool tempEnabled = (mode != ISelectableAnimator.Mode.Default) || !disableOnAnimationEnd;
         enabled = tempEnabled;
@@ -66,36 +73,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
     {
         if (!animationEnabled) return;
-        switch (mode)
-        {
-            case ISelectableAnimator.Mode.Default:
-                LerpColor(basicColor.GetColor(_manager), currentValue);
-                break;
-            case ISelectableAnimator.Mode.Selected:
-                if (selectColor?.UseInAnimation() != null && selectColor.UseInAnimation())
-                {
-                    LerpColor(selectColor.GetColor(_manager), currentValue);
-                }
-                else
-                {
-                    LerpColor(_manager.SelectedColor, currentValue);
-                }
-                break;
-            case ISelectableAnimator.Mode.Confirmed:
-                if (confirmColor?.UseInAnimation() != null && confirmColor.UseInAnimation())
-                {
-                    LerpColor(confirmColor.GetColor(_manager), currentValue);
-                }
-                else
-                {
-                    LerpColor(_manager.ConfirmedColor, currentValue);
-                }
-                break;
-        }
-    }
-    private void LerpColor(Color customColor, float currentValue)
-    {
-        color = Color.Lerp(_animationSavedColor, customColor, currentValue);
+        base.color = _colorAnimation.LerpTo(mode, currentValue);
     }
 
 #if UNITY_EDITOR

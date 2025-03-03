@@ -20,10 +20,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     public bool animationEnabled = false;
     public bool disableOnAnimationEnd = false;
 
-    [SerializeField] private bool _fixColor = false;
-    [SerializeField] private UiSettings.ColorName _colorTheme = UiSettings.ColorName.Background;
-    [SerializeField] private Color _customColorSave = Color.white;
-
+    public ManagedColor basicColor = new ManagedColor(false);
     public ManagedColor selectColor = new ManagedColor(false);
     public ManagedColor confirmColor = new ManagedColor(false);
 
@@ -32,51 +29,28 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
 
     private Color _animationSavedColor;
 
-    public UiSettings.ColorName ColorTheme
-    {
-        get => _colorTheme;
-        set
-        {
-            _colorTheme = value;
-            SetColorByTheme(_colorTheme);
-        }
-    }
+    public UiSettings.ColorName ColorTheme { get => basicColor.Theme; set => base.color = basicColor.SetColorByTheme(value, _manager); }
 
     public bool FixColor
     {
-        get => _fixColor;
+        get => basicColor.IsFixedColor();
         set
         {
-            _fixColor = value;
-            if (_fixColor)
-            {
-                SetColorByTheme(_colorTheme);
-            }
-            else
-            {
-                SetColorByFixed(_customColorSave);
-            }
+            basicColor.SetFixedColor(value);
+            UpdateColor();
         }
     }
 
-    public void SetColorByTheme(UiSettings.ColorName currentEnumValue)
+    public void UpdateColor()
     {
-        if (!_manager) return;
-        var colorTemp = _manager.GetImageColorByEnum(currentEnumValue);
-        _colorTheme = currentEnumValue;
-        base.color = colorTemp;
-    }
-
-    public void SetColorByFixed(Color colorTypeColorValue)
-    {
-        base.color = colorTypeColorValue;
+        base.color = basicColor.GetColor(_manager);
     }
 
     public void SetAsDefaultBackground()
     {
-        _fixColor = true;
+        basicColor.SetFixedColor(true);
         sprite = _manager.DefaultBackgroundImage();
-        type = UnityEngine.UI.Image.Type.Sliced;
+        type = Type.Sliced;
         pixelsPerUnitMultiplier = _manager.DefaultBackgroundImageSliceFactor;
     }
 
@@ -95,7 +69,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
         switch (mode)
         {
             case ISelectableAnimator.Mode.Default:
-                LerpColor(_customColorSave, ColorTheme, currentValue);
+                LerpColor(basicColor.GetColor(_manager), currentValue);
                 break;
             case ISelectableAnimator.Mode.Selected:
                 if (selectColor?.UseInAnimation() != null && selectColor.UseInAnimation())
@@ -119,18 +93,6 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
                 break;
         }
     }
-
-    private void LerpColor(Color customColor, UiSettings.ColorName theme, float currentValue)
-    {
-        if (_fixColor)
-        {
-            color = Color.Lerp(_animationSavedColor, _manager.GetImageColorByEnum(theme), currentValue);
-        }
-        else
-        {
-            color = Color.Lerp(_animationSavedColor, customColor, currentValue);
-        }
-    }
     private void LerpColor(Color customColor, float currentValue)
     {
         color = Color.Lerp(_animationSavedColor, customColor, currentValue);
@@ -147,10 +109,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
         {
             return;
         }
-        if (_fixColor)
-        {
-            SetColorByTheme(_colorTheme);
-        }
+        UpdateColor();
     }
 #endif
 
@@ -168,6 +127,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     public int VerticalLayoutGrowth() => growth.y > 0 ? growth.y : 1;
     public int HorizontalLayoutGrowth() => growth.x > 0 ? growth.x : 1;
     public bool IgnoreLayout() => ignoreLayout;
+
 
 }
 
@@ -189,38 +149,25 @@ public class ManagedImageEditor : Editor
         var UIManagerAsset = serializedObject.FindProperty("_manager");
         var animationEnabled = serializedObject.FindProperty("animationEnabled");
         var disableOnAnimationEnd = serializedObject.FindProperty("disableOnAnimationEnd");
+
+        var basicColor = serializedObject.FindProperty("basicColor");
         var selectColor = serializedObject.FindProperty("selectColor");
         var confirmColor = serializedObject.FindProperty("confirmColor");
-
-        var fixColor = serializedObject.FindProperty("_fixColor");
-        var customColor = serializedObject.FindProperty("_customColorSave");
-        var colorTheme = serializedObject.FindProperty("_colorTheme");
 
         var growth = serializedObject.FindProperty("growth");
         var ignoreLayout = serializedObject.FindProperty("ignoreLayout");
 
         var sprite = serializedObject.FindProperty("m_Sprite");
+        EditorGUI.BeginChangeCheck();
+        EditorUtils.DrawProperty(basicColor, "Color", "enable automatic animation");
+        bool updateRequired = EditorGUI.EndChangeCheck();
 
-
-        EditorUtils.DrawProperty(fixColor, "Color fixed", "Fix your color by Theme");
-        if (fixColor.boolValue)
-        {
-            EditorUtils.DrawProperty(colorTheme, "Color", "Select Color");
-            int enumIndex = colorTheme.enumValueIndex;
-            UiSettings.ColorName currentEnumValue = (UiSettings.ColorName)enumIndex;
-            image.SetColorByTheme(currentEnumValue);
-        }
-        else
-        {
-            EditorUtils.DrawProperty(customColor, "Color", "Select Color");
-            image.SetColorByFixed(customColor.colorValue);
-        }
         EditorUtils.DrawProperty(growth, "Layout Growth", "Selecte Grow factor for layout group");
         EditorUtils.DrawProperty(ignoreLayout, "Layout Growth ignored", "Ignore layout group growth");
         var animationProps = new List<SerializedProperty>();
         animationProps.Add(animationEnabled);
         animationProps.Add(disableOnAnimationEnd);
-        EditorUtils.DrawPropertyList(animationProps, "Animation | Visible Animation Only", "enable automatic animation", 180);
+        EditorUtils.DrawPropertyList(animationProps, "Animation | Visible Animation Only", "enable automatic animation", 80);
         EditorUtils.DrawProperty(selectColor, "Custom SelectColor", "enable automatic animation");
         EditorUtils.DrawProperty(confirmColor, "Custom SelectColor", "enable automatic animation");
 
@@ -236,6 +183,10 @@ public class ManagedImageEditor : Editor
         }
 
         serializedObject.ApplyModifiedProperties();
+        if (updateRequired)
+        {
+            image.UpdateColor();
+        }
         EditorUtils.DrawCustomHeader();
         base.OnInspectorGUI();
     }

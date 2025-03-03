@@ -12,12 +12,28 @@ public class ManagedColor
     [SerializeField] private Color _customColor = Color.white;
     [SerializeField] private UiSettings.ColorName _theme = UiSettings.ColorName.Main;
 
+
+    public UiSettings.ColorName Theme => _theme;
+    
     public bool IsFixedColor() => _fixedColor;
+    public void SetFixedColor(bool fixedColor)
+    {
+        _fixedColor = fixedColor;
+    }
+    
     public bool UseInAnimation() => _useInAnimation;
 
     public Color GetColor(UiSettings settings)
     {
         return _fixedColor ? settings.GetImageColorByEnum(_theme) : _customColor;
+    }
+
+    public Color SetColorByTheme(UiSettings.ColorName currentTheme, UiSettings _manager)
+    {
+        if (!_manager) return Color.white;
+        var colorTemp = _manager.GetImageColorByEnum(currentTheme);
+        _theme = currentTheme;
+        return colorTemp;
     }
 
     public ManagedColor(Color color)
@@ -40,6 +56,12 @@ public class ManagedColor
         _fixedColor = true;
         _useInAnimation = true;
     }
+    public Color SetColor(Color colorTypeColorValue)
+    {
+        _customColor = colorTypeColorValue;
+        return _customColor;
+    }
+    
 }
 
 

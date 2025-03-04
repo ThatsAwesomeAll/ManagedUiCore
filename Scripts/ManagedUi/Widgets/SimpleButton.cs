@@ -49,7 +49,7 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
         if (!_image)
         {
             _image = GetComponent<ManagedImage>();
-            _image.ColorTheme = UiSettings.ColorName.Main;
+            _image.ColorTheme = UiSettings.ColorName.Light;
             _image.SetAsDefaultBackground();
         }
         _text ??= GetComponentInChildren<ManagedText>();

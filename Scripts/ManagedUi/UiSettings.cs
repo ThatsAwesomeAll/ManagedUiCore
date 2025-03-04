@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using ManagedUi.ResourcesLoader;
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -67,7 +67,6 @@ public class UiSettings : ScriptableObject
         {
             ColorName.Accent => colorPalette.ColorAccent,
             ColorName.AccentLighter => colorPalette.ColorAccentLighter,
-            ColorName.Main => colorPalette.ColorMain,
             ColorName.Light => colorPalette.ColorLight,
             ColorName.Lighter => colorPalette.ColorLighter,
             ColorName.Dark => colorPalette.ColorDark,
@@ -102,17 +101,21 @@ public class UiSettings : ScriptableObject
     {
         ScaleRectTrans(text.rectTransform);
         text.enableAutoSizing = true;
-        var textSize = style switch
+        var fontStyle = style switch
         {
 
-            TextStyle.Header => FontStyles.HeaderStyle.textMinMax,
-            TextStyle.Highlight => FontStyles.HighlightStyle.textMinMax,
-            TextStyle.Text => FontStyles.TextStyle.textMinMax,
-            TextStyle.SubText => FontStyles.SubTextStyle.textMinMax,
+            TextStyle.Header => FontStyles.HeaderStyle,
+            TextStyle.Highlight => FontStyles.HighlightStyle,
+            TextStyle.Text => FontStyles.TextStyle,
+            TextStyle.SubText => FontStyles.SubTextStyle,
             _ => throw new ArgumentOutOfRangeException(nameof(style), style, null)
         };
-        text.fontSizeMin = textSize.x;
-        text.fontSizeMax = textSize.y;
+        text.fontSizeMin = fontStyle.textMinMax.x;
+        text.fontSizeMax = fontStyle.textMinMax.y;
+        if (fontStyle.font)
+        {
+            text.font = fontStyle.font;
+        }
         text.alignment = TextAlignmentOptions.Center;
     }
 
@@ -129,8 +132,10 @@ public class UiSettings : ScriptableObject
         public FontStyle(Vector2 text)
         {
             textMinMax = text;
+            font = null;
         }
         public Vector2 textMinMax;
+        public TMP_FontAsset font;
     }
 
     public enum TextStyle
@@ -168,7 +173,6 @@ public class UiSettings : ScriptableObject
     {
         Accent,
         AccentLighter,
-        Main,
         Light,
         Lighter,
         Dark,
@@ -182,7 +186,6 @@ public class UiSettings : ScriptableObject
     {
         public Color ColorAccent;
         public Color ColorAccentLighter;
-        public Color ColorMain;
         public Color ColorLight;
         public Color ColorLighter;
         public Color ColorDark;
@@ -196,7 +199,6 @@ public class UiSettings : ScriptableObject
             {
                 ColorAccent = new Color(0.1f, 0.1f, 0.1f);
                 ColorAccentLighter = new Color(0.1f, 0.1f, 0.1f);
-                ColorMain = new Color(0.1f, 0.1f, 0.1f);
                 ColorLight = new Color(0.8f, 0.8f, 0.8f);
                 ColorLighter = new Color(0.8f, 0.8f, 0.8f);
                 ColorDark = new Color(0.8f, 0.8f, 0.8f);
@@ -207,7 +209,6 @@ public class UiSettings : ScriptableObject
             }
             ColorAccent = new Color(1.0f, 0.71f, 0.01f);
             ColorAccentLighter = new Color(1.0f, 0.91f, 0.01f);
-            ColorMain = new Color(0.98f, 0.51f, 0.0f);
             ColorLight = new Color(0.15f, 0.32f, 0.48f);
             ColorLighter = new Color(0.2f, 0.4f, 0.6f);
             ColorDark = new Color(0.01f, 0.19f, 0.27f);
@@ -225,49 +226,8 @@ public class UiSettings : ScriptableObject
         {
             return;
         }
-        settings = GetSettings();
+        settings = SettingsLoader.GetSettings();
     }
-
-    private static UiSettings GetSettings()
-    {
-        UiSettings matchingAssets = Resources.Load<UiSettings>("ManagedUi/DefaultUiSettings");
-        if (matchingAssets == null)
-        {
-            matchingAssets = CreateInstance<UiSettings>();
-            matchingAssets.name = "DefaultUiSettings";
-            SaveScriptableObject(matchingAssets, "Assets/Resources/ManagedUi/DefaultUiSettings.asset");
-        }
-        return matchingAssets;
-    }
-
-    private static void SaveScriptableObject(ScriptableObject obj, string path)
-    {
-#if UNITY_EDITOR
-        // Ensure the directory exists
-        string directory = Path.GetDirectoryName(path);
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-        if (!EditorUtility.DisplayDialog(
-                "Default Settings for UI are created",            // Title
-                "Do you want to proceed?", // Message
-                "Yes",                     // Yes button
-                "No"                       // No button
-            ))
-        {
-            return;
-        }
-        // Save the asset
-        AssetDatabase.CreateAsset(obj, path);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-        Debug.Log($"Saved ScriptableObject at: {path}");
-#else
-        Debug.LogError("No UISettings found! UI will be missing default values");
-#endif
-    }
-
 }
 
 

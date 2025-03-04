@@ -26,6 +26,8 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     private ColorAnimation _colorAnimation;
 
     private string _saveOriginalText;
+    private UiSettings.ColorName _backgroundTheme;
+    private UiSettings.TextStyle _textStyle;
 
     
     public void UpdateColor()
@@ -44,11 +46,18 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         LocalizationProvider.OnLocalizationChanged += UpdateOnLocalChanged;
         _colorAnimation = new ColorAnimation(_manager,
             basicColor, selectColor, confirmColor);
+        _manager.OnSettingsChanged += UpdateOnSettingsChanged;
+    }
+    
+    private void UpdateOnSettingsChanged()
+    {
+        Format(_backgroundTheme,_textStyle);
     }
 
     private void OnDisable()
     {
         LocalizationProvider.OnLocalizationChanged -= UpdateOnLocalChanged;
+        _manager.OnSettingsChanged -= UpdateOnSettingsChanged;
     }
 
     private void UpdateOnLocalChanged()
@@ -76,6 +85,8 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 
     public void Format(UiSettings.ColorName theme, UiSettings.TextStyle style = UiSettings.TextStyle.Text)
     {
+        _backgroundTheme = theme;
+        _textStyle = style;
         _manager.SetTextAutoFormat(_text, style);
         if (_text) _text.color =  basicColor.SetColorByTheme(theme, _manager, true);
     }

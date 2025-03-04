@@ -10,7 +10,7 @@ public class ManagedColor
     [SerializeField] private bool _fixedColor = true;
     [SerializeField] private bool _useInAnimation = false;
     [SerializeField] private Color _customColor = Color.white;
-    [SerializeField] private UiSettings.ColorName _theme = UiSettings.ColorName.Main;
+    [SerializeField] private UiSettings.ColorName _theme = UiSettings.ColorName.Light;
 
 
     public UiSettings.ColorName Theme => _theme;

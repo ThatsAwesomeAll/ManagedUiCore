@@ -35,7 +35,7 @@ public class UiSettings : ScriptableObject
     public Sprite DefaultBackgroundImage() => _defaultBackgroundImage;
     public Sprite DefaultSelectionImage() => _defaultSelectionImage;
 
-    [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
+    [SerializeField] private FontStyleSettings DefaultFontStyleSettings = new FontStyleSettings(true);
 
     [Header("Selection Animation")]
     [SerializeField] private float defaultSelectionDuration = 0.3f;
@@ -227,7 +227,7 @@ public class UiSettings : ScriptableObject
         }
         settings = GetSettings();
     }
-    
+
     private static UiSettings GetSettings()
     {
         UiSettings matchingAssets = Resources.Load<UiSettings>("ManagedUi/DefaultUiSettings");
@@ -243,19 +243,26 @@ public class UiSettings : ScriptableObject
     private static void SaveScriptableObject(ScriptableObject obj, string path)
     {
 #if UNITY_EDITOR
-        // Show a save file dialog in the Unity Editor
-        string path_safe = EditorUtility.SaveFilePanelInProject(
-            "Save Default Ui Settings",                          // Window title
-            obj.name + ".asset",                           // Default name
-            "asset",                                         // File extension
-            "Choose a location to save the ScriptableObject" // Dialog message
-        );
-
+        // Ensure the directory exists
+        string directory = Path.GetDirectoryName(path);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        if (!EditorUtility.DisplayDialog(
+                "Default Settings for UI are created",            // Title
+                "Do you want to proceed?", // Message
+                "Yes",                     // Yes button
+                "No"                       // No button
+            ))
+        {
+            return;
+        }
         // Save the asset
-        AssetDatabase.CreateAsset(obj, path_safe);
+        AssetDatabase.CreateAsset(obj, path);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log($"Saved ScriptableObject at: {path_safe}");
+        Debug.Log($"Saved ScriptableObject at: {path}");
 #else
         Debug.LogError("No UISettings found! UI will be missing default values");
 #endif

@@ -78,14 +78,14 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
         _text.SetTextWithTranslation(_buttonText);
         if (autoFormat)
         {
-            _text.Format(_image.ColorTheme);
+            _text.Format(_image.ColorTheme, UiSettings.TextStyle.Header);
         }
     }
     
     [SerializeField] private UiSettings _manager;
     public void SetUp()
     {
-        if (!_manager) _manager = UiSettings.GetSettings();
+        UiSettings.ConnectSettings(ref _manager);
     }
 
     public int VerticalLayoutGrowth() => growFactor;

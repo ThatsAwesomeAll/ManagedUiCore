@@ -261,7 +261,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     [SerializeField] private UiSettings _manager;
     void SetUpSettings()
     {
-        if (!_manager) _manager = UiSettings.GetSettings();
+        UiSettings.ConnectSettings(ref _manager);
     }
 }
 

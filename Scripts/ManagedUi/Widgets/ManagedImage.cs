@@ -1,6 +1,5 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,7 +98,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     [SerializeField] private UiSettings _manager;
     public void SetUp()
     {
-        if (!_manager) _manager = UiSettings.GetSettings();
+        UiSettings.ConnectSettings(ref _manager);
     }
 
     public int VerticalLayoutGrowth() => growth.y > 0 ? growth.y : 1;

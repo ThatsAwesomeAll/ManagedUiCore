@@ -1,6 +1,11 @@
 ﻿using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace ManagedUi
 {
@@ -10,10 +15,11 @@ public class UiSettings : ScriptableObject
 {
 
     public Action OnSettingsChanged;
-    
-    
+
+
     [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
     [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
+
     [Header("Default Image settings")]
     [SerializeField] Sprite _defaultImage;
 
@@ -28,11 +34,12 @@ public class UiSettings : ScriptableObject
     public Sprite DefaultImage() => _defaultImage;
     public Sprite DefaultBackgroundImage() => _defaultBackgroundImage;
     public Sprite DefaultSelectionImage() => _defaultSelectionImage;
-        
+
     [SerializeField] private FontStyleSettings DefaultFontStyleSettings;
 
     [Header("Selection Animation")]
     [SerializeField] private float defaultSelectionDuration = 0.3f;
+
     [SerializeField] private float defaultConfirmedDuration = 0.1f;
     [SerializeField] private float defaultSelectionStrength = 5f;
     [SerializeField] private AnimationCurve defaultTextSelectionCurve = new AnimationCurve();
@@ -41,7 +48,7 @@ public class UiSettings : ScriptableObject
     public float DefaultConfirmedDuration => defaultConfirmedDuration;
     public float DefaultSelectionStrength => defaultSelectionStrength;
     public AnimationCurve DefaultTextSelectionCurve => defaultTextSelectionCurve;
-    
+
     public FontStyleSettings FontStyles => DefaultFontStyleSettings;
     public Color SelectedColor => ImageColors.ColorAccent;
     public Color ConfirmedColor => ImageColors.ColorAccentLighter;
@@ -73,8 +80,8 @@ public class UiSettings : ScriptableObject
     public Color GetImageColorByEnum(ColorName colorTheme)
     {
         return GetImageColorByEnum(colorTheme, ImageColors);
-    }  
-    
+    }
+
     public Color GetTextColorByEnum(ColorName colorTheme)
     {
         return GetImageColorByEnum(colorTheme, TextColors);
@@ -113,8 +120,9 @@ public class UiSettings : ScriptableObject
     {
         text.color = GetImageColorByEnum(background, TextColors);
     }
-    
+
     #region SettingDefinition
+
     [Serializable]
     public struct FontStyle
     {
@@ -211,11 +219,73 @@ public class UiSettings : ScriptableObject
 
     #endregion
 
-
-    public static UiSettings GetSettings()
+    public static void ConnectSettings(ref UiSettings settings)
+    {
+        if (settings != null)
+        {
+            return;
+        }
+        settings = GetSettings();
+    }
+    
+    private static UiSettings GetSettings()
     {
         UiSettings matchingAssets = Resources.Load<UiSettings>("ManagedUi/DefaultUiSettings");
+        if (matchingAssets == null)
+        {
+            matchingAssets = CreateInstance<UiSettings>();
+            matchingAssets.name = "DefaultUiSettings";
+            SaveScriptableObject(matchingAssets, "Assets/Resources/ManagedUi/DefaultUiSettings.asset");
+        }
         return matchingAssets;
     }
+
+    private static void SaveScriptableObject(ScriptableObject obj, string path)
+    {
+#if UNITY_EDITOR
+        // Show a save file dialog in the Unity Editor
+        string path_safe = EditorUtility.SaveFilePanelInProject(
+            "Save Default Ui Settings",                          // Window title
+            obj.name + ".asset",                           // Default name
+            "asset",                                         // File extension
+            "Choose a location to save the ScriptableObject" // Dialog message
+        );
+
+        // Save the asset
+        AssetDatabase.CreateAsset(obj, path_safe);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"Saved ScriptableObject at: {path_safe}");
+#else
+        Debug.LogError("No UISettings found! UI will be missing default values");
+#endif
+    }
+
 }
+
+
+#if UNITY_EDITOR
+[UnityEditor.CustomEditor(typeof(UiSettings))]
+public class UiSettingsEditor : Editor
+{
+    private UiSettings settings;
+
+    private void OnEnable()
+    {
+        settings = (UiSettings)target;
+    }
+
+
+    public override void OnInspectorGUI()
+    {
+        EditorGUI.BeginChangeCheck();
+        base.OnInspectorGUI();
+        bool updateRequired = EditorGUI.EndChangeCheck();
+        if (updateRequired)
+        {
+            settings.OnSettingsChanged?.Invoke();
+        }
+    }
+}
+#endif
 }

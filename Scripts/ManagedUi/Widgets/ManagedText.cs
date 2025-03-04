@@ -103,7 +103,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     [SerializeField] private UiSettings _manager;
     public void SetUp()
     {
-        if (!_manager) _manager = UiSettings.GetSettings();
+        UiSettings.ConnectSettings(ref _manager);
     }
 }
 

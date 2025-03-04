@@ -167,7 +167,7 @@ public class Card : MonoBehaviour
         textChild.transform.SetParent(_background.transform, false);
         var text = textChild.AddComponent<ManagedText>();
         text.SetTextWithTranslation(defaultText);
-        text.Format(background);
+        text.Format(background, style);
         return text;
     }
     private ManagedImage CreateImage(string imageName, Transform parent)
@@ -180,7 +180,7 @@ public class Card : MonoBehaviour
     [SerializeField] private UiSettings _manager;
     public void SetUp()
     {
-        if (!_manager) _manager = UiSettings.GetSettings();
+        UiSettings.ConnectSettings(ref _manager);
     }
 
 }

@@ -158,22 +158,26 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     public SelectableParent GetMatchingElementDirection(Vector2Int current, Vector2Int direction)
     {
         SelectableParent nextBest = null;
-        int minDistance = int.MaxValue;
-        float maxAngle = float.MaxValue;
+        float minDistance = int.MaxValue;
+        float maxAngle = Mathf.Cos(60 * Mathf.Deg2Rad);
 
         foreach (var element in _grid)
         {
-            Vector2Int diff = element.Value - current;
-            float angle = Vector2.Angle(direction, diff);
-            if (angle <= maxAngle)
+            if (element.Value == current)
             {
-                maxAngle = angle;
-                int distance = Mathf.Abs(diff.x) + Mathf.Abs(diff.y);
-                if (distance > 0 && distance < minDistance)
-                {
-                    minDistance = distance;
-                    nextBest = element.Key;
-                }
+                continue;
+            }
+            Vector2 diff = element.Value - current;
+            float angle = Vector2.Dot(direction, diff.normalized);
+            if (angle <= 0)
+            {
+                continue;
+            }
+            float distance = Mathf.Abs(diff.x) + Mathf.Abs(diff.y);
+            if (distance > 0 && distance < minDistance && angle > maxAngle)
+            {
+                minDistance = distance;
+                nextBest = element.Key;
             }
         }
         return nextBest;

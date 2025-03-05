@@ -26,8 +26,8 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     
     private SelectableParent _selectable;
     public SelectableParent Selectable => _selectable;
-    private ManagedImage _image;
-    private ManagedText _text;
+    [SerializeField] private ManagedImage _image;
+    [SerializeField] private ManagedText _text;
 
     public string ButtonText
     {
@@ -38,7 +38,12 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             SetText();
         }
     }
-
+    
+    public void RefreshButton()
+    {
+        SetText();
+    }
+    
     protected void Awake()
     {
         SetUp();
@@ -49,8 +54,8 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
         if (!_image)
         {
             _image = GetComponent<ManagedImage>();
-            _image.ColorTheme = UiSettings.ColorName.Light;
-            _image.SetAsDefaultBackground();
+            _image.SetDefaultBackgroundImage();
+            StyleDefaultUtils.ActiveDefaultButtonAnimation(_image);
         }
         _text ??= GetComponentInChildren<ManagedText>();
         if (!_text)
@@ -58,10 +63,7 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             var textChild = new GameObject(C_ButtonTextObjectName);
             textChild.transform.SetParent(transform, false);
             _text = textChild.AddComponent<ManagedText>();
-        }
-        if (getTextFromName)
-        {
-            _buttonText = name;
+            StyleDefaultUtils.ActiveDefaultButtonAnimation(_text);
         }
         _selectable = GetComponent<SelectableParent>();
         StartCoroutine(DelayTextOnEnable());
@@ -75,6 +77,10 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
 
     private void SetText()
     {
+        if (getTextFromName)
+        {
+            _buttonText = name;
+        }
         _text.SetTextWithTranslation(_buttonText);
         if (autoFormat)
         {
@@ -91,37 +97,20 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     public int VerticalLayoutGrowth() => growFactor;
     public int HorizontalLayoutGrowth() => growFactor;
     public bool IgnoreLayout() => false;
+
 }
 
 #if UNITY_EDITOR
     [UnityEditor.CustomEditor(typeof(SimpleButton))]
     public class SimpleButtonEditor : Editor
     {
-        private SimpleButton image;
+        private SimpleButton button;
+        private bool foldout;
 
         private void OnEnable()
         {
-            image = (SimpleButton)target;
-            image.SetUp();
-        }
-
-        void DrawProperty(SerializedProperty property, string content, string tooltip)
-        {
-            GUILayout.BeginHorizontal(EditorStyles.helpBox);
-
-            EditorGUILayout.LabelField(new GUIContent(content, tooltip), GUILayout.Width(120));
-            if (property != null)
-            {
-                EditorGUILayout.PropertyField(property, new GUIContent("", tooltip));
-            }
-
-            GUILayout.EndHorizontal();
-        }
-
-        void DrawCustomHeader()
-        {
-            GUILayout.Space(2);
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            button = (SimpleButton)target;
+            button.SetUp();
         }
 
         public override void OnInspectorGUI()
@@ -131,16 +120,18 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             var autoFormat = serializedObject.FindProperty("autoFormat");
             var getTextFromName = serializedObject.FindProperty("getTextFromName");
             var growFactor = serializedObject.FindProperty("growFactor");
-
-            DrawProperty(buttonText, "Text", "Button Text");
-            DrawProperty(getTextFromName, "Text From Name", "Enables retrieving text from object name");
-            DrawProperty(autoFormat, "Auto Format", "Enable Formating form Settings");
-            DrawProperty(growFactor, "GrowLayout", "Grow in flexible layout");
             
+            EditorGUI.BeginChangeCheck();
+            EditorUtils.DrawProperty(buttonText, "Text", "Button Text");
+            EditorUtils.DrawProperty(getTextFromName, "Text From Name", "Enables retrieving text from object name");
+            EditorUtils.DrawProperty(autoFormat, "Auto Format", "Enable Formating form Settings");
+            EditorUtils.DrawProperty(growFactor, "GrowLayout", "Grow in flexible layout");
+            
+            bool updateRequired = EditorGUI.EndChangeCheck();
 
             if (UIManagerAsset != null)
             {
-                DrawProperty(UIManagerAsset, "Manager Asset", "Dont change this");
+                EditorUtils.DrawProperty(UIManagerAsset, "Manager Asset", "Dont change this");
             }
             else
             {
@@ -148,7 +139,17 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
             }
 
             serializedObject.ApplyModifiedProperties();
-            DrawCustomHeader();
+            if (updateRequired)
+            {
+                button.RefreshButton();
+            } 
+            
+            EditorUtils.DrawCustomHeader();
+            foldout = EditorGUILayout.Foldout(foldout, "Advanced Settings");
+            if (foldout)
+            {
+                base.OnInspectorGUI();
+            }
         }
     }
 #endif

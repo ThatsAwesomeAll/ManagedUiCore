@@ -14,7 +14,7 @@ public class GrowGridLayout : LayoutGroup
     }
 
     [Header("GridStyle")]
-    public Vector2 spacing;
+    public Vector2 spacing = new Vector2(20,20);
 
     public GrowDirection direction;
 
@@ -22,6 +22,15 @@ public class GrowGridLayout : LayoutGroup
     private int _rows;
     private int _columns;
     public Vector2 _cellSize;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        padding.left = 20;
+        padding.right = 20;
+        padding.top = 20;
+        padding.bottom = 20;
+    }
 
 
     public override void CalculateLayoutInputHorizontal()

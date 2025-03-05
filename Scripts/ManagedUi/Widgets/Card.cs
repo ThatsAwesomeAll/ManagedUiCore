@@ -68,7 +68,7 @@ public class Card : MonoBehaviour
         SetContent();
         _textTextBox.SetTextWithTranslation(Text);
         _titleTextBox.SetTextWithTranslation(Title);
-        _background.basicColor.SetColorByTheme(BackgroundTheme,_manager);
+        _background.BasicColor.SetColorByTheme(BackgroundTheme,_manager);
         _textTextBox.SetBasicColorTheme(TextColor);
         _titleTextBox.SetBasicColorTheme(TitleColor);
     }
@@ -93,7 +93,7 @@ public class Card : MonoBehaviour
         StyleDefaultUtils.StyleSelectionMarker(animationTemp);
         _selectionImage = animationTemp;
         _selectionImage.enabled = false;
-        _selectionImage.confirmColor = new ManagedColor(UiSettings.ColorName.Lighter);
+        _selectionImage.ConfirmColor = new ManagedColor(UiSettings.ColorName.Lighter);
     }
 
     private void SetUpAllText()
@@ -143,15 +143,13 @@ public class Card : MonoBehaviour
             _background = CreateImage("Background", transform);
             _background.FixColor = true;
             _background.ColorTheme = BackgroundTheme;
-            var layout = _background.AddComponent<GrowGridLayout>();
+            var layout = _background.gameObject.AddComponent<GrowGridLayout>();
             layout.spacing = new Vector2(0, 5);
             layout.padding.top = layout.padding.left = layout.padding.right = 20;
             layout.padding.bottom = 10;
             StyleDefaultUtils.SetFullScreen(_background.rectTransform);
-            _background.animationEnabled = true;
-            _background.selectColor = new ManagedColor(UiSettings.ColorName.Background);
-            _background.confirmColor = new ManagedColor(UiSettings.ColorName.BackgroundDarker);
-            _background.SetAsDefaultBackground();
+            _background.SetDefaultBackgroundImage();
+            StyleDefaultUtils.ActiveDefaultButtonAnimation(_background);
         }
         if (!_imageHolder)
         {

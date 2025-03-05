@@ -37,7 +37,7 @@ public class TabHolder : MonoBehaviour
         }
         _image ??= GetComponent<ManagedImage>();
         _image.growth = new Vector2Int(10, 10);
-        _image.SetAsDefaultBackground();
+        _image.SetDefaultBackgroundImage();
         _image.ColorTheme = UiSettings.ColorName.Lighter;
     }
     

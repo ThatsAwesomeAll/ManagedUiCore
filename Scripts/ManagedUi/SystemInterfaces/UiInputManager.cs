@@ -7,10 +7,15 @@ namespace ManagedUi.SystemInterfaces
 public class UiInputManager : MonoBehaviour
 {
 
-    public Action OnLeft;
-    public Action OnRight;
-    public Action OnUp;
-    public Action OnDown;
+    public enum Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+    
+    public Action<Direction> OnMove;
 
     public Action OnConfirm;
 
@@ -47,22 +52,22 @@ public class UiInputManager : MonoBehaviour
         {
             if (_savedDirection.y > 0)
             {
-                OnUp?.Invoke();
+                OnMove?.Invoke(Direction.Up);
             }
             else
             {
-                OnDown?.Invoke();
+                OnMove?.Invoke(Direction.Down);
             }
         }
         else
         {
             if (_savedDirection.x > 0)
             {
-                OnRight?.Invoke();
+                OnMove?.Invoke(Direction.Right);
             }
             else
             {
-                OnLeft?.Invoke();
+                OnMove?.Invoke(Direction.Left);
             }
         }
         _savedDirection = Vector2.zero;
@@ -87,16 +92,16 @@ public class UiInputManager : MonoBehaviour
             switch (currentSecond%10)
             {
                 case 0:
-                    OnLeft?.Invoke();
+                    OnMove?.Invoke(Direction.Left);
                     break;
                 case 2:
-                    OnRight?.Invoke();
+                    OnMove?.Invoke(Direction.Right);
                     break;
                 case 4:
-                    OnUp?.Invoke();
+                    OnMove?.Invoke(Direction.Up);
                     break;
                 case 6:
-                    OnDown?.Invoke();
+                    OnMove?.Invoke(Direction.Down);
                     break;
                 case 8:
                     OnConfirm?.Invoke();

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ManagedUi
 {
-public class StyleDefaultUtils
+public static class StyleDefaultUtils
 {
     public static void SetFullScreen(RectTransform rect)
     {
@@ -21,6 +21,19 @@ public class StyleDefaultUtils
         image.disableOnAnimationEnd = true;
         image.ColorTheme = UiSettings.ColorName.Light;
         SetFullScreen(image.rectTransform);
+    }
+    
+    public static void ActiveDefaultButtonAnimation(ManagedImage image, UiSettings.ColorName selectColor = UiSettings.ColorName.Background, UiSettings.ColorName confirmColor = UiSettings.ColorName.BackgroundDarker)
+    {
+        image.animationEnabled = true;
+        image.SelectColor = new ManagedColor(selectColor);
+        image.ConfirmColor = new ManagedColor(confirmColor);
+    }    
+    public static void ActiveDefaultButtonAnimation(ManagedText image, UiSettings.ColorName selectColor = UiSettings.ColorName.Background, UiSettings.ColorName confirmColor = UiSettings.ColorName.BackgroundDarker)
+    {
+        image.animationEnabled = true;
+        image.SelectColor = new ManagedColor(selectColor);
+        image.ConfirmColor = new ManagedColor(confirmColor);
     }
 }
 }

@@ -20,6 +20,18 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     [SerializeField] private ManagedColor selectColor = new ManagedColor(UiSettings.ColorName.Background);
     [SerializeField] private ManagedColor confirmColor = new ManagedColor(UiSettings.ColorName.Background);
 
+    public ManagedColor BasicColor
+    {
+        get => basicColor;
+        set
+        {
+            basicColor = value;
+            UpdateColor();
+        }
+    }
+    public ManagedColor SelectColor { get => selectColor; set => selectColor = value; }
+    public ManagedColor ConfirmColor { get => selectColor; set => selectColor = value; }
+
     private Color _animationSavedColor;
     private Vector3 _savedSize;
     private TextMeshProUGUI _text;
@@ -29,7 +41,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     private UiSettings.ColorName _backgroundTheme;
     private UiSettings.TextStyle _textStyle;
 
-    
+
     public void UpdateColor()
     {
         if (_text != null)
@@ -48,10 +60,10 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
             basicColor, selectColor, confirmColor);
         _manager.OnSettingsChanged += UpdateOnSettingsChanged;
     }
-    
+
     private void UpdateOnSettingsChanged()
     {
-        Format(_backgroundTheme,_textStyle);
+        Format(_backgroundTheme, _textStyle);
     }
 
     private void OnDisable()
@@ -75,7 +87,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
             _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
         }
     }
-    
+
     public void SetBasicColorTheme(UiSettings.ColorName textColor)
     {
         basicColor.SetFixedColor(true);
@@ -88,9 +100,9 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         _backgroundTheme = theme;
         _textStyle = style;
         _manager.SetTextAutoFormat(_text, style);
-        if (_text) _text.color =  basicColor.SetColorByTheme(theme, _manager, true);
+        if (_text) _text.color = basicColor.SetColorByTheme(theme, _manager, true);
     }
-    
+
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
     {
         if (_text) _colorAnimation?.SetEnabled(_text.color);
@@ -137,7 +149,7 @@ public class ManagedTextEditor : Editor
 
         var UIManagerAsset = serializedObject.FindProperty("_manager");
         var animationEnabled = serializedObject.FindProperty("animationEnabled");
-        
+
         var basicColor = serializedObject.FindProperty("basicColor");
         var selectColor = serializedObject.FindProperty("selectColor");
         var confirmColor = serializedObject.FindProperty("confirmColor");
@@ -149,7 +161,6 @@ public class ManagedTextEditor : Editor
         EditorUtils.DrawProperty(animationEnabled, "Animation", "enable automatic animation");
         EditorUtils.DrawProperty(selectColor, "Custom SelectColor", "enable automatic animation");
         EditorUtils.DrawProperty(confirmColor, "Custom ConfirmColor", "enable automatic animation");
-        
 
 
         if (UIManagerAsset != null)

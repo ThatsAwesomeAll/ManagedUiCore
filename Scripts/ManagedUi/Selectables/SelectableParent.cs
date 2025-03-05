@@ -172,7 +172,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             {
                 animators.LerpTo(mode, currentValue);
             }
-        }, ease: AnimationEase);
+        }, ease: AnimationEase, useUnscaledTime: true);
         if (fadeoutMode == mode)
         {
             return;

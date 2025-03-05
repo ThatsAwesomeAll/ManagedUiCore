@@ -19,14 +19,26 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
     public bool animationEnabled = false;
     public bool disableOnAnimationEnd = false;
 
-    public ManagedColor basicColor = new ManagedColor(false);
-    public ManagedColor selectColor = new ManagedColor(false);
-    public ManagedColor confirmColor = new ManagedColor(false);
+    [SerializeField] private ManagedColor basicColor = new ManagedColor(false);
+    [SerializeField] private ManagedColor selectColor = new ManagedColor(false);
+    [SerializeField] private ManagedColor confirmColor = new ManagedColor(false);
 
     public Vector2Int growth = Vector2Int.one;
     public bool ignoreLayout = false;
 
     private ColorAnimation _colorAnimation;
+    
+    public ManagedColor BasicColor
+    {
+        get => basicColor;
+        set
+        {
+            basicColor = value;
+            UpdateColor();
+        }
+    }
+    public ManagedColor SelectColor { get => selectColor; set => selectColor = value; }
+    public ManagedColor ConfirmColor { get => selectColor; set => selectColor = value; }
 
     public UiSettings.ColorName ColorTheme { get => basicColor.Theme; set => base.color = basicColor.SetColorByTheme(value, _manager); }
 
@@ -52,7 +64,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
         base.color = basicColor.GetColor(_manager);
     }
 
-    public void SetAsDefaultBackground()
+    public void SetDefaultBackgroundImage()
     {
         basicColor.SetFixedColor(true);
         sprite = _manager.DefaultBackgroundImage();
@@ -113,6 +125,7 @@ public class ManagedImage : Image, IManagedGridLayoutElement, ISelectableAnimato
 public class ManagedImageEditor : Editor
 {
     private ManagedImage image;
+    private bool foldout = false;
 
     private void OnEnable()
     {
@@ -165,7 +178,11 @@ public class ManagedImageEditor : Editor
             image.UpdateColor();
         }
         EditorUtils.DrawCustomHeader();
-        base.OnInspectorGUI();
+        foldout = EditorGUILayout.Foldout(foldout, "Advanced Settings");
+        if (foldout)
+        {
+            base.OnInspectorGUI();
+        }
     }
 }
 #endif

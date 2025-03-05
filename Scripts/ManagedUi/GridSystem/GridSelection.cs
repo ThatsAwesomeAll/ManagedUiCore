@@ -15,30 +15,22 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     Vector2Int _currentSelectedIndex = Vector2Int.zero;
     SelectableParent _currentSelected;
 
-    enum Direction
-    {
-        Up,
-        Down,
-        Left,
-        Right
-    }
-
-    Vector2Int GetVector2IntFromDirection(Direction dir)
+    Vector2Int GetVector2IntFromDirection(UiInputManager.Direction dir)
     {
         Vector2Int direction = Vector2Int.zero;
 
         switch (dir)
         {
-            case Direction.Up:
+            case UiInputManager.Direction.Up:
                 direction = new Vector2Int(0, 1);
                 break;
-            case Direction.Down:
+            case UiInputManager.Direction.Down:
                 direction = new Vector2Int(0, -1);
                 break;
-            case Direction.Left:
+            case UiInputManager.Direction.Left:
                 direction = new Vector2Int(-1, 0);
                 break;
-            case Direction.Right:
+            case UiInputManager.Direction.Right:
                 direction = new Vector2Int(1, 0);
                 break;
             default:
@@ -54,64 +46,30 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     public void OnEnable()
     {
         SetupGrid(true);
+        inputManager ??= GetComponent<UiInputManager>();
+        ClearInputCallbacks();
         if (inputManager != null)
         {
-            inputManager.OnDown += () =>
-            {
-                MoveSelection(Direction.Down);
-            };
-
-            inputManager.OnUp += () =>
-            {
-                MoveSelection(Direction.Up);
-            };
-
-            inputManager.OnLeft += () =>
-            {
-                MoveSelection(Direction.Left);
-            };
-
-            inputManager.OnRight += () =>
-            {
-                MoveSelection(Direction.Right);
-            };
-
-            inputManager.OnConfirm += () =>
-            {
-                Confirmed();
-            };
+            inputManager.OnMove += MoveSelection;
+            inputManager.OnConfirm += Confirmed;
         }
     }
     private void OnDisable()
     {
+        ClearInputCallbacks();
+        StopCoroutine(SetUp(true));
+    }
+
+    private void ClearInputCallbacks()
+    {
         if (inputManager != null)
         {
-            inputManager.OnDown -= () =>
-            {
-                MoveSelection(Direction.Down);
-            };
-
-            inputManager.OnUp -= () =>
-            {
-                MoveSelection(Direction.Up);
-            };
-
-            inputManager.OnLeft -= () =>
-            {
-                MoveSelection(Direction.Left);
-            };
-
-            inputManager.OnRight -= () =>
-            {
-                MoveSelection(Direction.Right);
-            };
-
+            inputManager.OnMove -= MoveSelection;
             inputManager.OnConfirm -= () =>
             {
                 Confirmed();
             };
         }
-        StopCoroutine(SetUp(true));
     }
 
     public void SetupGrid(bool setDefault)
@@ -201,13 +159,15 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     {
         SelectableParent nextBest = null;
         int minDistance = int.MaxValue;
+        float maxAngle = float.MaxValue;
 
         foreach (var element in _grid)
         {
             Vector2Int diff = element.Value - current;
             float angle = Vector2.Angle(direction, diff);
-            if (angle <= 45)
+            if (angle <= maxAngle)
             {
+                maxAngle = angle;
                 int distance = Mathf.Abs(diff.x) + Mathf.Abs(diff.y);
                 if (distance > 0 && distance < minDistance)
                 {
@@ -228,7 +188,7 @@ public class GridSelection : MonoBehaviour, ISelectableManager
         _currentSelected.SetConfirmed();
     }
 
-    private void MoveSelection(Direction dir)
+    private void MoveSelection(UiInputManager.Direction dir)
     {
         var selectionDirection = GetVector2IntFromDirection(dir);
         SelectableParent nextBest = GetMatchingElementDirection(_currentSelectedIndex, selectionDirection);

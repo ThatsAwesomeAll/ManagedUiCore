@@ -15,7 +15,7 @@ public static class LocalizationType
         switch (table)
         {
             case Table.UIMenu:
-                return "MenuStrings";
+                return "MenuTranslations";
             case Table.Dialog:
                 return "Dialog";
         }

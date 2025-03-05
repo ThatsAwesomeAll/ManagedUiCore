@@ -154,7 +154,6 @@ public class GridSelection : MonoBehaviour, ISelectableManager
         return minSize;
     }
 
-
     public SelectableParent GetMatchingElementDirection(Vector2Int current, Vector2Int direction)
     {
         SelectableParent nextBest = null;

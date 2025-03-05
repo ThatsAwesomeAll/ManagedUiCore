@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -42,11 +43,20 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     public void RefreshButton()
     {
         SetText();
+        if (_manager && autoFormat)
+        {
+            _image.sprite = _manager.DefaultBackgroundImage();
+        }
     }
     
     protected void Awake()
     {
         SetUp();
+    }
+
+    private void OnDisable()
+    {
+        _manager.OnSettingsChanged -= RefreshButton;
     }
 
     private void OnEnable()
@@ -67,6 +77,8 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
         }
         _selectable = GetComponent<SelectableParent>();
         StartCoroutine(DelayTextOnEnable());
+        SetText();
+        _manager.OnSettingsChanged += RefreshButton;
     }
 
     IEnumerator DelayTextOnEnable()

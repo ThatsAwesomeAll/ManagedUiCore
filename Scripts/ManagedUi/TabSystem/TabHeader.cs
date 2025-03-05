@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 namespace ManagedUi.TabSystem
 {
@@ -120,7 +121,7 @@ public class TabHeader : MonoBehaviour
         }
         OnTabSelected?.Invoke(currentTab);
     }
-    
+
     private int ComputeNextOrderIndex(bool forward)
     {
         List<int> orderIndexes = _currentTabButtons.Keys.Select(tab => tab.OrderIndex).ToList();
@@ -142,7 +143,7 @@ public class TabHeader : MonoBehaviour
         {
             if (currentOrderIndex > 0)
             {
-                newIndex = currentOrderIndex-1;
+                newIndex = currentOrderIndex - 1;
             }
             else
             {
@@ -169,20 +170,28 @@ public class TabHeader : MonoBehaviour
 
     public void AddTabs(List<ManagedTab> tabs)
     {
-        ClearTabs();
-        SetUpControlButton();
+        ClearTabs(tabs);
         _left.transform.SetAsFirstSibling();
         _currentTabButtons.Clear();
 
         int index = _left.transform.GetSiblingIndex();
         foreach (var tab in tabs)
         {
-            var button = AddTab(tab);
+            SimpleButton button = FindTabInChildren(tab);
+            if (!button)
+            {
+                button = AddTab(tab);
+            }
             button.transform.SetSiblingIndex(index + 1);
             index = button.transform.GetSiblingIndex();
             _currentTabButtons.Add(tab, button);
         }
         _right.transform.SetAsLastSibling();
+    }
+    private SimpleButton FindTabInChildren(ManagedTab tab)
+    {
+        var foundElement = transform.Find(tab.Title);
+        return !foundElement ? null : foundElement.GetComponent<SimpleButton>();
     }
 
     private SimpleButton AddTab(ManagedTab tab)
@@ -205,9 +214,24 @@ public class TabHeader : MonoBehaviour
         OnTabSelected?.Invoke(tab);
     }
 
-    private void ClearTabs()
+    private void ClearTabs(List<ManagedTab> tabs)
     {
-        while(transform.childCount > 0) DestroyImmediate(transform.GetChild(0).gameObject);
+        int currentChildIndex = 0;
+        while(currentChildIndex < transform.childCount)
+        {
+            var child = transform.GetChild(currentChildIndex);
+            if (child.name == C_buttonNameLeft || child.name == C_buttonNameRight)
+            {
+                currentChildIndex++;
+                continue;
+            }
+            if (tabs.Any(x => x.Title == child.name))
+            {
+                currentChildIndex++;
+                continue;
+            }
+            DestroyImmediate(transform.GetChild(currentChildIndex).gameObject);
+        }
         SetUpControlButton();
     }
 

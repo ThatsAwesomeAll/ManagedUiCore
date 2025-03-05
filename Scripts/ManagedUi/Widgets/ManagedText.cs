@@ -29,12 +29,13 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
             UpdateColor();
         }
     }
+
     public ManagedColor SelectColor { get => selectColor; set => selectColor = value; }
     public ManagedColor ConfirmColor { get => selectColor; set => selectColor = value; }
 
     private Color _animationSavedColor;
     private Vector3 _savedSize;
-    private TextMeshProUGUI _text;
+    [SerializeField] private TextMeshProUGUI _text;
     private ColorAnimation _colorAnimation;
 
     private string _saveOriginalText;
@@ -80,6 +81,8 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 
     public void SetTextWithTranslation(string text, bool localization = true, LocalizationType.Table table = LocalizationType.Table.UIMenu)
     {
+        if (!_text) return;
+
         _text.text = text;
         _saveOriginalText = text;
         if (localization)
@@ -99,8 +102,9 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     {
         _backgroundTheme = theme;
         _textStyle = style;
+        if (!_text) return;
+        _text.color = basicColor.SetColorByTheme(theme, _manager, true);
         _manager.SetTextAutoFormat(_text, style);
-        if (_text) _text.color = basicColor.SetColorByTheme(theme, _manager, true);
     }
 
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)

@@ -23,17 +23,17 @@ public static class StyleDefaultUtils
         SetFullScreen(image.rectTransform);
     }
     
-    public static void ActiveDefaultButtonAnimation(ManagedImage image, UiSettings.ColorName selectColor = UiSettings.ColorName.Background, UiSettings.ColorName confirmColor = UiSettings.ColorName.BackgroundDarker)
+    public static void ActiveDefaultButtonAnimation(ManagedImage image, UiSettings.ColorName selectColor = UiSettings.ColorName.Darker, UiSettings.ColorName confirmColor = UiSettings.ColorName.Background)
     {
         image.animationEnabled = true;
         image.SelectColor = new ManagedColor(selectColor);
         image.ConfirmColor = new ManagedColor(confirmColor);
     }    
-    public static void ActiveDefaultButtonAnimation(ManagedText image, UiSettings.ColorName selectColor = UiSettings.ColorName.Background, UiSettings.ColorName confirmColor = UiSettings.ColorName.BackgroundDarker)
+    public static void ActiveDefaultButtonAnimation(ManagedText text, UiSettings.ColorName selectColor = UiSettings.ColorName.Darker, UiSettings.ColorName confirmColor = UiSettings.ColorName.Background)
     {
-        image.animationEnabled = true;
-        image.SelectColor = new ManagedColor(selectColor);
-        image.ConfirmColor = new ManagedColor(confirmColor);
+        text.animationEnabled = true;
+        text.SelectColor = new ManagedColor(selectColor);
+        text.ConfirmColor = new ManagedColor(confirmColor);
     }
 }
 }

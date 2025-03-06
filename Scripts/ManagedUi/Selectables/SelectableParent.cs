@@ -2,8 +2,8 @@ using PrimeTween;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 namespace ManagedUi.Selectables
@@ -14,7 +14,9 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Animation")]
-    [SerializeField] List<ISelectableAnimator> _selectionAnimators = new List<ISelectableAnimator>();
+    List<ISelectableAnimator> _selectionAnimators = new List<ISelectableAnimator>();
+
+    public UnityEvent OnConfirm;
 
     public bool _customAnimation = false;
     [SerializeField] private float _animationDuration = 0.1f;

@@ -31,26 +31,26 @@ public class ColorAnimation
         _animationSavedColor = currentColor;
     }
 
-    public Color LerpTo(ISelectableAnimator.Mode mode, float currentValue)
+    public Color LerpTo(ISelectableAnimator.Mode mode, float currentValue, bool isContrast = false)
     {
         switch (mode)
         {
             case ISelectableAnimator.Mode.Default:
-                return LerpColor(_basicColor.GetColor(_manager), currentValue);
+                return LerpColor(_basicColor.GetColor(_manager, isContrast), currentValue);
             case ISelectableAnimator.Mode.Selected:
                 if (_selectColor?.UseInAnimation() != null && _selectColor.UseInAnimation())
                 {
-                    return LerpColor(_selectColor.GetColor(_manager), currentValue);
+                    return LerpColor(_selectColor.GetColor(_manager, isContrast), currentValue);
                 }
                 return LerpColor(_manager.SelectedColor, currentValue);
             case ISelectableAnimator.Mode.Confirmed:
                 if (_confirmColor?.UseInAnimation() != null && _confirmColor.UseInAnimation())
                 {
-                    return LerpColor(_confirmColor.GetColor(_manager), currentValue);
+                    return LerpColor(_confirmColor.GetColor(_manager, isContrast), currentValue);
                 }
                 return LerpColor(_manager.ConfirmedColor, currentValue);
             default:
-                return _basicColor.GetColor(_manager);
+                return _basicColor.GetColor(_manager, isContrast);
         }
     }
 

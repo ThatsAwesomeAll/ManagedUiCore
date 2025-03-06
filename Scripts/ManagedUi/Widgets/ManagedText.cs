@@ -2,6 +2,7 @@ using ManagedUi.Localization;
 using ManagedUi.Selectables;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -36,9 +37,11 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     private Color _animationSavedColor;
     private Vector3 _savedSize;
     [SerializeField] private TextMeshProUGUI _text;
+    public LocalizationType.Table localizationType = LocalizationType.Table.UIMenu;
+
     private ColorAnimation _colorAnimation;
 
-    private string _saveOriginalText;
+    [SerializeField] private string _manualText;
     private UiSettings.ColorName _backgroundTheme;
     private UiSettings.TextStyle _textStyle;
 
@@ -75,7 +78,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 
     private void UpdateOnLocalChanged()
     {
-        SetTextWithTranslation(_saveOriginalText);
+        SetTextWithTranslation(_manualText);
         _text.SetAllDirty();
     }
 
@@ -84,7 +87,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         if (!_text) return;
 
         _text.text = text;
-        _saveOriginalText = text;
+        _manualText = text;
         if (localization)
         {
             _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
@@ -110,16 +113,12 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
     {
         if (_text) _colorAnimation?.SetEnabled(_text.color);
-        if (!animationEnabled) return;
-        bool tempEnabled = (mode != ISelectableAnimator.Mode.Default);
-        enabled = tempEnabled;
-        gameObject.SetActive(tempEnabled);
     }
 
     public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
     {
         if (!animationEnabled) return;
-        if (_text) _text.color = _colorAnimation.LerpTo(mode, currentValue);
+        if (_text) _text.color = _colorAnimation.LerpTo(mode, currentValue, true);
     }
 
     void Awake()
@@ -140,6 +139,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 public class ManagedTextEditor : Editor
 {
     private ManagedText text;
+    private bool foldout;
 
     private void OnEnable()
     {
@@ -152,6 +152,9 @@ public class ManagedTextEditor : Editor
     {
 
         var UIManagerAsset = serializedObject.FindProperty("_manager");
+        var localizationType = serializedObject.FindProperty("localizationType");
+        var _manualText = serializedObject.FindProperty("_manualText");
+        
         var animationEnabled = serializedObject.FindProperty("animationEnabled");
 
         var basicColor = serializedObject.FindProperty("basicColor");
@@ -160,6 +163,8 @@ public class ManagedTextEditor : Editor
 
 
         EditorGUI.BeginChangeCheck();
+        EditorUtils.DrawProperty(_manualText, "Manual Text", "enable automatic animation");
+        EditorUtils.DrawProperty(localizationType, "Localization", "enable automatic animation");
         EditorUtils.DrawProperty(basicColor, "Color", "enable automatic animation");
         bool updateRequired = EditorGUI.EndChangeCheck();
         EditorUtils.DrawProperty(animationEnabled, "Animation", "enable automatic animation");
@@ -179,9 +184,16 @@ public class ManagedTextEditor : Editor
         serializedObject.ApplyModifiedProperties();
         if (updateRequired)
         {
+            text.SetTextWithTranslation(_manualText.stringValue, true,(LocalizationType.Table) localizationType.enumValueIndex);
             text.UpdateColor();
+            text.Format(UiSettings.ColorName.Background);
         }
         EditorUtils.DrawCustomHeader();
+        foldout = EditorGUILayout.Foldout(foldout, "Advanced Settings");
+        if (foldout)
+        {
+            base.OnInspectorGUI();
+        }
     }
 }
 #endif

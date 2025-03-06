@@ -120,7 +120,11 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
             if (!_gridFixed) _internalGridPosition = value;
         }
     }
-
+    public void SetGridPosition(Vector3Int skillGridIndex)
+    {
+        _internalGridPosition = new Vector2Int(skillGridIndex.x, skillGridIndex.y);
+    }
+    
     public bool Selected => _selected;
     public void SetSelected(bool selected)
     {
@@ -266,6 +270,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     {
         UiSettings.ConnectSettings(ref _manager);
     }
+
 }
 
 }

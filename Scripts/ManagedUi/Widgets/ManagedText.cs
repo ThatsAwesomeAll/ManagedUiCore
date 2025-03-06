@@ -186,7 +186,7 @@ public class ManagedTextEditor : Editor
         {
             text.SetTextWithTranslation(_manualText.stringValue, true,(LocalizationType.Table) localizationType.enumValueIndex);
             text.UpdateColor();
-            text.Format(UiSettings.ColorName.Background);
+            text.Format(text.BasicColor.Theme);
         }
         EditorUtils.DrawCustomHeader();
         foldout = EditorGUILayout.Foldout(foldout, "Advanced Settings");

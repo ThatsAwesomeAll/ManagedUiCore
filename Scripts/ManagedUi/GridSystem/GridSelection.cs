@@ -85,8 +85,9 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     IEnumerator SetUp(bool setDefault)
     {
         yield return new WaitForEndOfFrame();
+        _selectables = GetComponentsInChildren<SelectableParent>();
         DeselectGrid();
-        SetUpGrid();
+        setupGridAndSizes();
         if (_currentSelected != null)
         {
             _currentSelected.SetSelected(true);
@@ -129,7 +130,7 @@ public class GridSelection : MonoBehaviour, ISelectableManager
         }
     }
 
-    void SetUpGrid()
+    void setupGridAndSizes()
     {
         Vector2 minSize = GetMinimalSize(_selectables);
         _grid.Clear();

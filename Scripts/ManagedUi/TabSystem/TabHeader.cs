@@ -1,10 +1,10 @@
 using ManagedUi.GridSystem;
+using ManagedUi.Selectables;
 using ManagedUi.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 namespace ManagedUi.TabSystem
 {
@@ -93,33 +93,40 @@ public class TabHeader : MonoBehaviour
         if (!_right)
         {
             _right = CreateControlButton(C_buttonNameRight, "Right");
-            _right.Selectable.OnConfirmed += parent =>
-            {
-                SelectNextTab(true);
-            };
         }
+        _right.Selectable.OnConfirmed -= SelectNext;
+        _right.Selectable.OnConfirmed += SelectNext;
         if (!_left)
         {
             _left = CreateControlButton(C_buttonNameLeft, "Left");
-            _left.Selectable.OnConfirmed += parent =>
-            {
-                SelectNextTab(false);
-            };
         }
+        _left.Selectable.OnConfirmed -= SelectPrev;
+        _left.Selectable.OnConfirmed += SelectPrev;
     }
+
+    private void SelectNext(SelectableParent _)
+    {
+        SelectNextTab(false);
+    }
+    private void SelectPrev(SelectableParent _)
+    {
+        SelectNextTab(true);
+    }
+    
     private void SelectNextTab(bool forward)
     {
         if (_currentTabButtons.Count == 0) return;
+        ManagedTab selection;
         if (!currentTab)
         {
-            currentTab = _currentTabButtons.Keys.First();
+            selection = _currentTabButtons.Keys.First();
         }
         else
         {
             int targetOrderIndex = ComputeNextOrderIndex(forward);
-            currentTab = _currentTabButtons.First(x => x.Key.OrderIndex == targetOrderIndex).Key;
+            selection = _currentTabButtons.First(x => x.Key.OrderIndex == targetOrderIndex).Key;
         }
-        OnTabSelected?.Invoke(currentTab);
+        TabSelected(selection);
     }
 
     private int ComputeNextOrderIndex(bool forward)
@@ -180,8 +187,10 @@ public class TabHeader : MonoBehaviour
             SimpleButton button = FindTabInChildren(tab);
             if (!button)
             {
-                button = AddTab(tab);
+                button = CreateControlButton(tab.Title, tab.Title);
+
             }
+            SetupTab(button, tab);
             button.transform.SetSiblingIndex(index + 1);
             index = button.transform.GetSiblingIndex();
             _currentTabButtons.Add(tab, button);
@@ -194,9 +203,8 @@ public class TabHeader : MonoBehaviour
         return !foundElement ? null : foundElement.GetComponent<SimpleButton>();
     }
 
-    private SimpleButton AddTab(ManagedTab tab)
+    private void SetupTab(SimpleButton button, ManagedTab tab)
     {
-        var button = CreateControlButton(tab.Title, tab.Title);
         button.Image.ColorTheme = UiSettings.ColorName.Light;
         button.Image.SelectColor = new ManagedColor(UiSettings.ColorName.Lighter);
         button.Image.ConfirmColor = new ManagedColor(UiSettings.ColorName.Accent);
@@ -205,12 +213,16 @@ public class TabHeader : MonoBehaviour
         {
             TabSelected(tab);
         };
-        return button;
     }
 
     private void TabSelected(ManagedTab tab)
     {
+        if (currentTab)
+        {
+            _currentTabButtons[currentTab].SetShadow(false);
+        }
         currentTab = tab;
+        _currentTabButtons[currentTab].SetShadow(true);
         OnTabSelected?.Invoke(tab);
     }
 

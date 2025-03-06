@@ -144,6 +144,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         {
             AnimateConfirm();
             OnConfirmed?.Invoke(this);
+            OnConfirm?.Invoke();
         }
     }
 

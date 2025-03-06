@@ -22,6 +22,7 @@ public class UiSettings : ScriptableObject
 
     [Header("Default Image settings")]
     [SerializeField] Sprite _defaultImage;
+    [SerializeField] Sprite _defaultShadowImage;
 
     [SerializeField] Sprite _defaultSelectionImage;
     [SerializeField] private float _defaultSelectionImageSliceFactor = 0.3f;
@@ -34,6 +35,7 @@ public class UiSettings : ScriptableObject
     public Sprite DefaultImage() => _defaultImage;
     public Sprite DefaultBackgroundImage() => _defaultBackgroundImage;
     public Sprite DefaultSelectionImage() => _defaultSelectionImage;
+    public Sprite DefaultShadowImage() => _defaultShadowImage;
 
     [SerializeField] private FontStyleSettings DefaultFontStyleSettings = new FontStyleSettings(true);
 

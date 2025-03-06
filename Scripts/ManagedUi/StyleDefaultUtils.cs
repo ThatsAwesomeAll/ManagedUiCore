@@ -35,5 +35,12 @@ public static class StyleDefaultUtils
         text.SelectColor = new ManagedColor(selectColor);
         text.ConfirmColor = new ManagedColor(confirmColor);
     }
+    public static void StyleShadow(ManagedImage shadow, UiSettings manager)
+    {
+        SetFullScreen(shadow.rectTransform);
+        shadow.animationEnabled = false;
+        shadow.BasicColor.SetColorByTheme(UiSettings.ColorName.Dark, manager);
+        shadow.sprite = manager?.DefaultShadowImage();
+    }
 }
 }

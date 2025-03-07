@@ -1,6 +1,9 @@
 ﻿using ManagedUi.Settings;
+using ManagedUi.Tooltip;
 using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ManagedUi.Widgets
@@ -10,7 +13,7 @@ namespace ManagedUi.Widgets
 [RequireComponent(typeof(VerticalLayoutGroup))]
 [RequireComponent(typeof(LayoutElement))]
 [RequireComponent(typeof(ManagedImage))]
-public class ToolTip : MonoBehaviour
+public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
 
     private const string C_GameObjectTitle = "Title";
@@ -29,14 +32,26 @@ public class ToolTip : MonoBehaviour
 
     public int characterLimitTitle = 30;
     public int characterLimitText = 50;
+    public bool _currentlyHovered;
+
+    private void ActivateText(string text, ManagedText textfield)
+    {
+        if (String.IsNullOrEmpty(text))
+        {
+            textfield.gameObject.SetActive(false);
+        }
+        else
+        {
+            textfield.gameObject.SetActive(true);
+            textfield.SetTextWithTranslation(text);
+        }
+        UpdateLayout();
+    }
+    
     public void SetText(string text, string title)
     {
-        _text.SetTextWithTranslation(text);
-        if (String.IsNullOrEmpty(title))
-        {
-            return;
-        }
-        _title.SetTextWithTranslation(title);
+        ActivateText(title, _title);
+        ActivateText(text, _text);
     }
 
     private void OnEnable()
@@ -130,25 +145,44 @@ public class ToolTip : MonoBehaviour
         text.SetTextWithTranslation(defaultText);
         text.Format(UiSettings.ColorName.Dark, style);
         return text;
-    } 
+    }
+
     private void Update()
+    {
+        if (!Application.isEditor)
+        {
+            return;
+        }
+        UpdateLayout();
+    }
+    private void UpdateLayout()
     {
         int headerLength = _title.Text.Length;
         int textLength = _text.Text.Length;
-
         _layoutElement.enabled = (headerLength > characterLimitTitle || textLength > characterLimitText);
     }
     
     void Awake()
     {
         SetUp();
+        TooltipManager.ConnectEvent(ref _event);
     }
-
     [SerializeField] private UiSettings _manager;
+    [SerializeField] private TooltipEvent _event;
     public void SetUp()
     {
         UiSettings.ConnectSettings(ref _manager);
     }
-
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        _currentlyHovered = true;
+    }
+    
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _currentlyHovered = false;
+        _event?.HideTooltip();
+        
+    }
 }
 }

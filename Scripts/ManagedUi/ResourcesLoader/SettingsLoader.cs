@@ -1,3 +1,4 @@
+using ManagedUi.Tooltip;
 using System.IO;
 using UnityEngine;
 
@@ -17,6 +18,18 @@ public static class SettingsLoader
             matchingAssets = ScriptableObject.CreateInstance<UiSettings>();
             matchingAssets.name = "DefaultUiSettings";
             SaveScriptableObject(matchingAssets, "Assets/Resources/ManagedUi/DefaultUiSettings.asset");
+        }
+        return matchingAssets;
+    }
+    
+    public static TooltipEvent GetTooltipEvent()
+    {
+        TooltipEvent matchingAssets = Resources.Load<TooltipEvent>("ManagedUi/TooltipEvent");
+        if (matchingAssets == null)
+        {
+            matchingAssets = ScriptableObject.CreateInstance<TooltipEvent>();
+            matchingAssets.name = "DefaultUiSettings";
+            SaveScriptableObject(matchingAssets, "Assets/Resources/ManagedUi/TooltipEvent.asset");
         }
         return matchingAssets;
     }

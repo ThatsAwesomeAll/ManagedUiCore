@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.SystemInterfaces;
+using System;
 using UnityEngine;
 
 namespace ManagedUi.TabSystem
@@ -14,6 +15,10 @@ public class TabManager : MonoBehaviour
     public TabContentContainer Content;
     private RectTransform _rectTransform;
     private GridSelection _gridSelection;
+
+    private ManagedTab _currentTab;
+    public ManagedTab currentTab => _currentTab;
+    public Action<ManagedTab> OnTabChanged;
 
     public void OnEnable()
     {
@@ -40,7 +45,9 @@ public class TabManager : MonoBehaviour
     
     private void UpdateGrid(ManagedTab obj)
     {
+        _currentTab = obj;
         _gridSelection?.SetupGrid(false);
+        OnTabChanged?.Invoke(obj);
     }
 }
 }

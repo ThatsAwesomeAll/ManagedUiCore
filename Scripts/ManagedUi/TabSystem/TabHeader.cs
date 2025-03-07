@@ -43,11 +43,6 @@ public class TabHeader : MonoBehaviour
 
         _grid = GetComponent<GrowGridLayout>();
         _grid.direction = GrowGridLayout.GrowDirection.Column;
-        _grid.spacing.x = 20f;
-        _grid.padding.left = 10;
-        _grid.padding.top = 10;
-        _grid.padding.right = 10;
-        _grid.padding.bottom = 10;
     }
 
     private void SetupBackground()

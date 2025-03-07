@@ -85,13 +85,19 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     public void SetTextWithTranslation(string text, bool localization = true, LocalizationType.Table table = LocalizationType.Table.UIMenu)
     {
         if (!_text) return;
-
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
         _text.text = text;
         _manualText = text;
-        if (localization)
+        if (!localization)
+            return;
+        if (string.IsNullOrEmpty(text))
         {
-            _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
+            return;
         }
+        _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
     }
 
     public void SetBasicColorTheme(UiSettings.ColorName textColor)

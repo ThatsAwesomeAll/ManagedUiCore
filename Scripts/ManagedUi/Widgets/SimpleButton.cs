@@ -26,7 +26,7 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     public int growFactor = 1;
     public ManagedImage Image => _image;
 
-    private SelectableParent _selectable;
+    [SerializeField] private SelectableParent _selectable;
     public SelectableParent Selectable => _selectable;
     [SerializeField] private ManagedImage _image;
     [SerializeField] private ManagedText _text;

@@ -9,7 +9,10 @@ public class TooltipEvent : ScriptableObject
     public Action<int> onHide;
 
     public float delay = 0.5f;
-    
+    public float animationStartSize = 0.5f;
+    public float inDuration = 0.2f;
+    public float outDuration = 0.2f;
+
     public void ShowTooltip(string title, string text)
     {
         onShow?.Invoke(title,text);

@@ -4,6 +4,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ManagedUi.Widgets
@@ -29,10 +30,14 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     
     [SerializeField] private ManagedImage _boarder;
     [SerializeField] private ManagedImage _background;
+    
+    private RectTransform _rectTransform;
+
 
     public int characterLimitTitle = 30;
     public int characterLimitText = 50;
-    public bool _currentlyHovered;
+    public bool _currentlyHovered = false;
+    public bool _disablePosition = false;
 
     private void ActivateText(string text, ManagedText textfield)
     {
@@ -56,6 +61,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void OnEnable()
     {
+        _rectTransform ??= GetComponent<RectTransform>();
         if (!_layoutGroup)
         {
             _layoutGroup = GetComponent<VerticalLayoutGroup>();
@@ -80,8 +86,16 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
         SetUpAllText();
         SetupAllImages();
+        _currentlyHovered = false;
+        _disablePosition = false;
     }
-    
+
+    private void OnDisable()
+    {
+        _currentlyHovered = false;
+        _disablePosition = true;
+    }
+
     private void SetupAllImages()
     {
         var allText = GetComponentsInChildren<ManagedImage>();
@@ -149,12 +163,27 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void Update()
     {
-        if (!Application.isEditor)
+        if (!Application.isPlaying)
         {
             return;
         }
-        UpdateLayout();
+        UpdatePosition();
     }
+    
+    private void UpdatePosition()
+    {
+        if (_currentlyHovered || _disablePosition)
+        {
+            return;
+        }
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        transform.position = mousePos;
+        float pivotX = mousePos.x/Screen.width;
+        float pivotY = mousePos.y/Screen.height;
+        _rectTransform.pivot = new Vector2(0, 0);
+    }
+
+    
     private void UpdateLayout()
     {
         int headerLength = _title.Text.Length;
@@ -181,6 +210,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnPointerExit(PointerEventData eventData)
     {
         _currentlyHovered = false;
+        _disablePosition = true;
         _event?.HideTooltip();
         
     }

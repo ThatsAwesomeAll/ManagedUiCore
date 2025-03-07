@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
+using ManagedUi.Settings;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -124,7 +125,7 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
         _text.SetTextWithTranslation(_buttonText);
         if (autoFormat)
         {
-            _text.Format(_image.ColorTheme, UiSettings.TextStyle.Header);
+            _text.Format(_image.ColorTheme, TextSettings.TextStyle.Header);
         }
     }
 

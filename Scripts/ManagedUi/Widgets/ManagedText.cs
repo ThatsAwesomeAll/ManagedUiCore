@@ -1,5 +1,6 @@
 using ManagedUi.Localization;
 using ManagedUi.Selectables;
+using ManagedUi.Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -33,17 +34,19 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 
     public ManagedColor SelectColor { get => selectColor; set => selectColor = value; }
     public ManagedColor ConfirmColor { get => selectColor; set => selectColor = value; }
-
-    private Color _animationSavedColor;
-    private Vector3 _savedSize;
     [SerializeField] private TextMeshProUGUI _text;
     public LocalizationType.Table localizationType = LocalizationType.Table.UIMenu;
-
-    private ColorAnimation _colorAnimation;
-
+    [SerializeField] private TextSettings.TextStyle _textStyle;
+    public TextSettings.TextStyle TextStyle => _textStyle;
+    
     [SerializeField] private string _manualText;
+    public string Text => _manualText;
+    
+    private ColorAnimation _colorAnimation;
+    private Color _animationSavedColor;
+    private Vector3 _savedSize;
+
     private UiSettings.ColorName _backgroundTheme;
-    private UiSettings.TextStyle _textStyle;
 
 
     public void UpdateColor()
@@ -81,8 +84,8 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         SetTextWithTranslation(_manualText);
         _text.SetAllDirty();
     }
-
-    public void SetTextWithTranslation(string text, bool localization = true, LocalizationType.Table table = LocalizationType.Table.UIMenu)
+    
+    public void SetTextWithTranslation(string text)
     {
         if (!_text) return;
         if (string.IsNullOrEmpty(text))
@@ -91,13 +94,12 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         }
         _text.text = text;
         _manualText = text;
-        if (!localization)
-            return;
         if (string.IsNullOrEmpty(text))
         {
             return;
         }
-        _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(table));
+        _text.spriteAsset = _manager.SpriteAsset;
+        _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(localizationType));
     }
 
     public void SetBasicColorTheme(UiSettings.ColorName textColor)
@@ -107,13 +109,22 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         UpdateColor();
     }
 
-    public void Format(UiSettings.ColorName theme, UiSettings.TextStyle style = UiSettings.TextStyle.Text)
+    public void Format(UiSettings.ColorName theme, TextSettings.TextStyle style)
     {
         _backgroundTheme = theme;
         _textStyle = style;
         if (!_text) return;
         _text.color = basicColor.SetColorByTheme(theme, _manager, true);
         _manager.SetTextAutoFormat(_text, style);
+    }
+    
+    public void Format(UiSettings.ColorName theme)
+    {
+        _backgroundTheme = theme;
+        _textStyle = TextStyle;
+        if (!_text) return;
+        _text.color = basicColor.SetColorByTheme(theme, _manager, true);
+        _manager.SetTextAutoFormat(_text, TextStyle);
     }
 
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
@@ -190,7 +201,7 @@ public class ManagedTextEditor : Editor
         serializedObject.ApplyModifiedProperties();
         if (updateRequired)
         {
-            text.SetTextWithTranslation(_manualText.stringValue, true,(LocalizationType.Table) localizationType.enumValueIndex);
+            text.SetTextWithTranslation(_manualText.stringValue);
             text.UpdateColor();
             text.Format(text.BasicColor.Theme);
         }

@@ -1,5 +1,6 @@
 using ManagedUi.GridSystem;
 using ManagedUi.Selectables;
+using ManagedUi.Settings;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -113,12 +114,12 @@ public class Card : MonoBehaviour
         }
         if (!_titleTextBox)
         {
-            _titleTextBox = CreateText("Title", Title, UiSettings.TextStyle.Highlight, TitleColor);
+            _titleTextBox = CreateText("Title", Title, TextSettings.TextStyle.Highlight, TitleColor);
             _titleTextBox.transform.SetAsLastSibling();
         }
         if (!_textTextBox)
         {
-            _textTextBox = CreateText("Text", Text, UiSettings.TextStyle.Text, TextColor);
+            _textTextBox = CreateText("Text", Text, TextSettings.TextStyle.Text, TextColor);
             _textTextBox.transform.SetAsLastSibling();
         }
     }
@@ -159,7 +160,7 @@ public class Card : MonoBehaviour
         }
     }
 
-    private ManagedText CreateText(string textName, string defaultText, UiSettings.TextStyle style, UiSettings.ColorName background)
+    private ManagedText CreateText(string textName, string defaultText, TextSettings.TextStyle style, UiSettings.ColorName background)
     {
         var textChild = new GameObject(textName);
         textChild.transform.SetParent(_background.transform, false);

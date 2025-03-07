@@ -1,5 +1,6 @@
 using ManagedUi.Widgets;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ManagedUi
 {
@@ -41,6 +42,22 @@ public static class StyleDefaultUtils
         shadow.animationEnabled = false;
         shadow.BasicColor.SetColorByTheme(UiSettings.ColorName.Dark, manager);
         shadow.sprite = manager?.DefaultShadowImage();
+    }
+    public static void ScaleRectTrans(RectTransform transform)
+    {
+        transform.anchorMin = new Vector2(0, 0);
+        transform.anchorMax = new Vector2(1, 1);
+        transform.offsetMin = Vector2.zero;
+        transform.offsetMax = Vector2.zero;
+        transform.anchoredPosition = new Vector2(0, 0);
+        transform.pivot = new Vector2(0.5f, 0.5f);
+    }
+    public static void StyleBoarder(ManagedImage image, UiSettings manager)
+    {
+        image.BasicColor.SetColorByTheme(UiSettings.ColorName.Light,manager);
+        image.sprite = manager.DefaultBoarderImage();
+        image.type = Image.Type.Sliced;
+        image.pixelsPerUnitMultiplier = manager.DefaultBoarderImageSliceFactor;
     }
 }
 }

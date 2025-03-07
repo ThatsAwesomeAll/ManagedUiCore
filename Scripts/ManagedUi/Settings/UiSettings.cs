@@ -2,6 +2,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using TextSettings = ManagedUi.Settings.TextSettings;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -16,42 +17,40 @@ public class UiSettings : ScriptableObject
 
     public Action OnSettingsChanged;
 
-
     [SerializeField] ColorTheme ImageColors = new ColorTheme(ColorMode.Default);
     [SerializeField] ColorTheme TextColors = new ColorTheme(ColorMode.DefaultText);
 
     [Header("Default Image settings")]
-    [SerializeField] Sprite _defaultImage;
-    [SerializeField] Sprite _defaultShadowImage;
+    [SerializeField] private ImageSettings _imageSettings;
 
-    [SerializeField] Sprite _defaultSelectionImage;
-    [SerializeField] private float _defaultSelectionImageSliceFactor = 0.3f;
+    public float DefaultBackgroundImageSliceFactor => _imageSettings.DefaultBackgroundImageSliceFactor;
+    public float DefaultSelectionImageSliceFactor => _imageSettings.DefaultSelectionImageSliceFactor;
+    public Sprite DefaultImage() => _imageSettings?.DefaultImage();
+    public Sprite DefaultBackgroundImage() => _imageSettings?.DefaultBackgroundImage();
+    public Sprite DefaultSelectionImage() => _imageSettings?.DefaultSelectionImage();
+    public Sprite DefaultShadowImage() => _imageSettings?.DefaultShadowImage();
+    public Sprite DefaultBoarderImage()  => _imageSettings?.DefaultBoarderImage();
+    public float DefaultBoarderImageSliceFactor => _imageSettings.DefaultBoarderImageSliceFactor;
 
-    [SerializeField] Sprite _defaultBackgroundImage;
-    [SerializeField] private float _defaultBackgroundImageSliceFactor = 0.3f;
-
-    public float DefaultBackgroundImageSliceFactor => _defaultBackgroundImageSliceFactor;
-    public float DefaultSelectionImageSliceFactor => _defaultSelectionImageSliceFactor;
-    public Sprite DefaultImage() => _defaultImage;
-    public Sprite DefaultBackgroundImage() => _defaultBackgroundImage;
-    public Sprite DefaultSelectionImage() => _defaultSelectionImage;
-    public Sprite DefaultShadowImage() => _defaultShadowImage;
-
-    [SerializeField] private FontStyleSettings DefaultFontStyleSettings = new FontStyleSettings(true);
-
+    [Header("Text Settings")]
+    [SerializeField] private TextSettings _textSettings;
+    public TextSettings.FontStyleSettings FontStyles => _textSettings.DefaultFontStyleSettings;
+    public void SetTextAutoFormat(TextMeshProUGUI text, TextSettings.TextStyle style)
+    {
+        _textSettings.SetTextAutoFormat(text, style);
+    }
+    public TMP_SpriteAsset SpriteAsset => _textSettings?.GetTextSprites();
+    
+    
     [Header("Selection Animation")]
     [SerializeField] private float defaultSelectionDuration = 0.3f;
-
     [SerializeField] private float defaultConfirmedDuration = 0.1f;
     [SerializeField] private float defaultSelectionStrength = 5f;
-    [SerializeField] private AnimationCurve defaultTextSelectionCurve = new AnimationCurve();
 
     public float DefaultSelectionDuration => defaultSelectionDuration;
     public float DefaultConfirmedDuration => defaultConfirmedDuration;
     public float DefaultSelectionStrength => defaultSelectionStrength;
-    public AnimationCurve DefaultTextSelectionCurve => defaultTextSelectionCurve;
 
-    public FontStyleSettings FontStyles => DefaultFontStyleSettings;
     public Color SelectedColor => ImageColors.ColorAccent;
     public Color ConfirmedColor => ImageColors.ColorAccentLighter;
 
@@ -63,7 +62,7 @@ public class UiSettings : ScriptableObject
         TextColors = new ColorTheme(ColorMode.DefaultText);
     }
 
-    public static Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
+    private static Color GetImageColorByEnum(ColorName colorTheme, ColorTheme colorPalette)
     {
         return colorTheme switch
         {
@@ -88,81 +87,8 @@ public class UiSettings : ScriptableObject
         return GetImageColorByEnum(colorTheme, TextColors);
     }
 
-    private static void ScaleRectTrans(RectTransform transform)
-    {
-        transform.anchorMin = new Vector2(0, 0);
-        transform.anchorMax = new Vector2(1, 1);
-        transform.offsetMin = Vector2.zero;
-        transform.offsetMax = Vector2.zero;
-        transform.anchoredPosition = new Vector2(0, 0);
-        transform.pivot = new Vector2(0.5f, 0.5f);
-    }
-
-
-    public void SetTextAutoFormat(TextMeshProUGUI text, TextStyle style)
-    {
-        ScaleRectTrans(text.rectTransform);
-        text.enableAutoSizing = true;
-        var fontStyle = style switch
-        {
-
-            TextStyle.Header => FontStyles.HeaderStyle,
-            TextStyle.Highlight => FontStyles.HighlightStyle,
-            TextStyle.Text => FontStyles.TextStyle,
-            TextStyle.SubText => FontStyles.SubTextStyle,
-            _ => throw new ArgumentOutOfRangeException(nameof(style), style, null)
-        };
-        text.fontSizeMin = fontStyle.textMinMax.x;
-        text.fontSizeMax = fontStyle.textMinMax.y;
-        if (fontStyle.font)
-        {
-            text.font = fontStyle.font;
-        }
-        text.alignment = TextAlignmentOptions.Center;
-    }
-
-    public void SetTextColor(TextMeshProUGUI text, ColorName background)
-    {
-        text.color = GetImageColorByEnum(background, TextColors);
-    }
 
     #region SettingDefinition
-
-    [Serializable]
-    public struct FontStyle
-    {
-        public FontStyle(Vector2 text)
-        {
-            textMinMax = text;
-            font = null;
-        }
-        public Vector2 textMinMax;
-        public TMP_FontAsset font;
-    }
-
-    public enum TextStyle
-    {
-        Header,
-        Highlight,
-        Text,
-        SubText
-    }
-
-    [Serializable]
-    public struct FontStyleSettings
-    {
-        public FontStyle HeaderStyle;
-        public FontStyle HighlightStyle;
-        public FontStyle TextStyle;
-        public FontStyle SubTextStyle;
-        public FontStyleSettings(bool dummy)
-        {
-            HeaderStyle = new FontStyle(new Vector2(30, 100));
-            HighlightStyle = new FontStyle(new Vector2(30, 80));
-            TextStyle = new FontStyle(new Vector2(20, 40));
-            SubTextStyle = new FontStyle(new Vector2(10, 30));
-        }
-    }
 
     [Serializable]
     public enum ColorMode

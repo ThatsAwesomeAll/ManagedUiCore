@@ -20,18 +20,19 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private const string C_GameObjectTitle = "Title";
     private const string C_GameObjectBoarder = "Boarder";
     private const string C_GameObjectText = "Text";
-    
+
     [SerializeField] private VerticalLayoutGroup _layoutGroup;
     [SerializeField] private ContentSizeFitter _contentFitter;
     [SerializeField] private LayoutElement _layoutElement;
-    
+
     [SerializeField] private ManagedText _text;
     [SerializeField] private ManagedText _title;
-    
+
     [SerializeField] private ManagedImage _boarder;
     [SerializeField] private ManagedImage _background;
-    
+
     private RectTransform _rectTransform;
+    private Canvas _canvas;
 
 
     public int characterLimitTitle = 30;
@@ -52,19 +53,42 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
         UpdateLayout();
     }
-    
+
     public void SetText(string text, string title)
     {
         ActivateText(title, _title);
         ActivateText(text, _text);
-        _rectTransform.pivot = new Vector2(1, 1);
     }
 
     public void SetText(string text, string title, RectTransform source)
     {
         SetText(text, title);
         _disablePosition = true;
-        transform.position = source.transform.position;
+        var target = source.transform.position;
+        target.x += source.pivot.x*source.rect.width;
+        target.y += source.pivot.y*source.rect.height;
+        SetPosition(source.transform.position);
+    }
+
+    private void SetPosition(Vector3 targetPosition)
+    {
+        if (targetPosition.x + _rectTransform.rect.width > _canvas.pixelRect.width)
+        {
+            targetPosition.x = _canvas.pixelRect.width - _rectTransform.rect.width;
+        }
+        if (targetPosition.x < 0f)
+        {
+            targetPosition.x = 0f;
+        }
+        if (targetPosition.y - _rectTransform.rect.height < 0f)
+        {
+            targetPosition.y = _rectTransform.rect.height;
+        }
+        if (targetPosition.y > _canvas.pixelRect.height)
+        {
+            targetPosition.y = _canvas.pixelRect.height;
+        }
+        transform.position = targetPosition;
     }
 
     private void OnEnable()
@@ -92,6 +116,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             _layoutElement = GetComponent<LayoutElement>();
             _layoutElement.preferredWidth = 400;
         }
+        _canvas = GetComponentInParent<Canvas>();
         SetUpAllText();
         SetupAllImages();
         _currentlyHovered = false;
@@ -120,11 +145,11 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             var textChild = new GameObject(C_GameObjectBoarder);
             textChild.transform.SetParent(transform, false);
-            var image = textChild.AddComponent<ManagedImage>(); 
+            var image = textChild.AddComponent<ManagedImage>();
             var layout = textChild.AddComponent<LayoutElement>();
             layout.ignoreLayout = true;
             StyleDefaultUtils.SetFullScreen(image.rectTransform);
-            StyleDefaultUtils.StyleBoarder(image,_manager);
+            StyleDefaultUtils.StyleBoarder(image, _manager);
         }
         if (!_background)
         {
@@ -177,7 +202,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         }
         UpdatePosition();
     }
-    
+
     private void UpdatePosition()
     {
         if (_currentlyHovered || _disablePosition)
@@ -185,20 +210,17 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             return;
         }
         Vector2 mousePos = Mouse.current.position.ReadValue();
-        transform.position = mousePos;
-        float pivotX = mousePos.x/Screen.width;
-        float pivotY = mousePos.y/Screen.height;
-        _rectTransform.pivot = new Vector2(0, 0);
+        SetPosition(mousePos);
     }
 
-    
+
     private void UpdateLayout()
     {
         int headerLength = _title.Text.Length;
         int textLength = _text.Text.Length;
         _layoutElement.enabled = (headerLength > characterLimitTitle || textLength > characterLimitText);
     }
-    
+
     void Awake()
     {
         SetUp();
@@ -214,13 +236,13 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _currentlyHovered = true;
     }
-    
+
     public void OnPointerExit(PointerEventData eventData)
     {
         _currentlyHovered = false;
         _disablePosition = true;
         _event?.HideTooltip();
-        
+
     }
 }
 }

@@ -47,7 +47,7 @@ public class TooltipManager : MonoBehaviour
     private void ShowTooltip(string title, string text)
     {
         if (!_toolTip) return;
-        
+
         _toolTip.gameObject.SetActive(true);
         _toolTip.transform.localScale = Vector3.one*_tooltipEvent.animationStartSize;
         toolTipEffect.Stop();
@@ -55,7 +55,7 @@ public class TooltipManager : MonoBehaviour
         _toolTip._disablePosition = false;
         _toolTip.SetText(text, title);
     }
-    
+
     private void ShowTooltipWithPosition(string title, string text, RectTransform source)
     {
         if (!_toolTip) return;
@@ -64,13 +64,15 @@ public class TooltipManager : MonoBehaviour
         _toolTip.transform.localScale = Vector3.one*_tooltipEvent.animationStartSize;
         toolTipEffect.Stop();
         toolTipEffect = PrimeTween.Tween.Scale(_toolTip.transform, Vector3.one, _tooltipEvent.inDuration, useUnscaledTime: true);
-        _toolTip._disablePosition = false; 
+        _toolTip._disablePosition = false;
         _toolTip.SetText(text, title, source);
     }
-    
+
     private void HideTooltip(TooltipEvent.TooltipTriggerSender obj)
     {
+        if (!_toolTip) return;
         if (_toolTip._currentlyHovered) return;
+
         if (obj == TooltipEvent.TooltipTriggerSender.Default)
         {
             _toolTip._disablePosition = true;
@@ -79,12 +81,21 @@ public class TooltipManager : MonoBehaviour
         {
             toolTipEffect.Stop();
         }
-        toolTipEffect = PrimeTween.Tween.Scale(_toolTip.transform, Vector3.one*_tooltipEvent.animationStartSize, _tooltipEvent.outDuration, useUnscaledTime: true).OnComplete(
-            () =>
-            {
-                _toolTip._currentlyHovered = false;
-                _toolTip.gameObject.SetActive(false);
-            });
+        if (obj == TooltipEvent.TooltipTriggerSender.ForceClose)
+        {
+            _toolTip._currentlyHovered = false;
+            _toolTip.gameObject.SetActive(false);
+        }
+        else
+        {
+            toolTipEffect = PrimeTween.Tween.Scale(_toolTip.transform, Vector3.one*_tooltipEvent.animationStartSize, _tooltipEvent.outDuration, useUnscaledTime: true).OnComplete(
+                () =>
+                {
+                    _toolTip._currentlyHovered = false;
+                    _toolTip.gameObject.SetActive(false);
+                });
+        }
+
     }
 
 

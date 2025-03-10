@@ -17,7 +17,8 @@ public class TooltipEvent : ScriptableObject
     public enum TooltipTriggerSender
     {
         Default,
-        TooltipInternal
+        TooltipInternal,
+        ForceClose
     }
 
     public void ShowTooltip(string title, string text)
@@ -30,9 +31,9 @@ public class TooltipEvent : ScriptableObject
         onShowWithFixedPosition?.Invoke(title, text, source);
     }
 
-    public void HideTooltip()
+    public void HideTooltip(TooltipTriggerSender triggerType = TooltipTriggerSender.Default)
     {
-        onHide?.Invoke(TooltipTriggerSender.Default);
+        onHide?.Invoke(triggerType);
     }
 
 }

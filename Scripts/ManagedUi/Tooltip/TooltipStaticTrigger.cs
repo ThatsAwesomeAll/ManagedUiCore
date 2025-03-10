@@ -12,36 +12,43 @@ public class TooltipStaticTrigger : MonoBehaviour
         TooltipManager.ConnectEvent(ref _event);
     }
 
-    public void RemoveTooltip()
+    public void RemoveTooltip(bool forceShutdown = false)
     {
-        HandleTooltipStop(_event, ref _delayTween);
+        HandleTooltipStop(_event, ref _delayTween, forceShutdown);
     }
 
     public void SetTooltip(string title, string text)
     {
         HandleTooltipShow(_event, ref _delayTween, title, text);
     }
-    
+
     public void SetTooltipWithPosition(string title, string text, RectTransform source)
     {
         _delayTween.Stop();
         _event?.ShowTooltip(title, text, source);
     }
 
-    public static void HandleTooltipStop(TooltipEvent tooltipEvent, ref PrimeTween.Tween delayTween)
+    public static void HandleTooltipStop(TooltipEvent tooltipEvent, ref PrimeTween.Tween delayTween, bool forceShutdown = false)
     {
         delayTween.Stop();
-        delayTween = PrimeTween.Tween.Delay(tooltipEvent.delay).OnComplete(
+        float delay = tooltipEvent.delay;
+        TooltipEvent.TooltipTriggerSender triggerType = TooltipEvent.TooltipTriggerSender.Default;
+        if (forceShutdown)
+        {
+            delay = 0;
+            triggerType = TooltipEvent.TooltipTriggerSender.ForceClose;
+        }
+        delayTween = PrimeTween.Tween.Delay(delay).OnComplete(
             () =>
             {
-                tooltipEvent?.HideTooltip();
+                tooltipEvent?.HideTooltip(triggerType);
             });
     }
     public static void HandleTooltipShow(TooltipEvent tooltipEvent, ref PrimeTween.Tween delayTween, string title, string text)
     {
         delayTween.Stop();
-        tooltipEvent?.ShowTooltip(title, text); 
+        tooltipEvent?.ShowTooltip(title, text);
     }
-    
+
 }
 }

@@ -22,7 +22,7 @@ public class TabHeader : MonoBehaviour
 
     private RectTransform _rectTransform;
     private GrowGridLayout _grid;
-    private ManagedImage _image;
+    [SerializeField] private ManagedImage _image;
 
     public Action<ManagedTab> OnTabSelected;
 
@@ -204,6 +204,7 @@ public class TabHeader : MonoBehaviour
         button.Image.SelectColor = new ManagedColor(UiSettings.ColorName.Lighter);
         button.Image.ConfirmColor = new ManagedColor(UiSettings.ColorName.Accent);
         button.transform.SetSiblingIndex(tab.OrderIndex);
+        button.Image.growth = new Vector2Int(3, 3);
         button.Selectable.OnConfirmed += parent =>
         {
             TabSelected(tab);

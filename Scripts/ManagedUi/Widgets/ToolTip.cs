@@ -57,6 +57,14 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         ActivateText(title, _title);
         ActivateText(text, _text);
+        _rectTransform.pivot = new Vector2(1, 1);
+    }
+
+    public void SetText(string text, string title, RectTransform source)
+    {
+        SetText(text, title);
+        _disablePosition = true;
+        transform.position = source.transform.position;
     }
 
     private void OnEnable()

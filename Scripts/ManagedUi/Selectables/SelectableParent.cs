@@ -76,6 +76,7 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
     public bool _gridFixed = false;
 
     public Action<SelectableParent> OnSelected;
+    public Action<SelectableParent> OnDeselected;
     public Action<SelectableParent> OnConfirmed;
 
     ISelectableManager _selectableManager;
@@ -137,6 +138,10 @@ public class SelectableParent : MonoBehaviour, ISelectHandler, IDeselectHandler,
         if (_selected)
         {
             OnSelected?.Invoke(this);
+        }
+        else
+        {
+            OnDeselected?.Invoke(this);
         }
     }
 

@@ -75,6 +75,7 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     public void SetupGrid(bool setDefault)
     {
         _selectables = GetComponentsInChildren<SelectableParent>();
+        
         if (_selectables.Length == 0)
         {
             return;
@@ -86,6 +87,9 @@ public class GridSelection : MonoBehaviour, ISelectableManager
     {
         yield return new WaitForEndOfFrame();
         _selectables = GetComponentsInChildren<SelectableParent>();
+        // remove selecatable which are not enabled
+        _selectables = _selectables.Where(go => go.enabled).ToArray();
+        
         DeselectGrid();
         setupGridAndSizes();
         if (_currentSelected != null)

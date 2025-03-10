@@ -8,8 +8,8 @@ namespace ManagedUi.Tooltip
 public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
 
-    public string title = "SOMMMEHASDF";
-    public string text = "aösdlkfjöaskdjföljk öasjdfölk ajsdfa sdf\n asdjöfja kösdflkjas";
+    [SerializeField] private string _title = "SOMMMEHASDF";
+    [SerializeField] private string _text = "aösdlkfjöaskdjföljk öasjdfölk ajsdfa sdf\n asdjöfja kösdflkjas";
 
     private PrimeTween.Tween _delayTween;
 
@@ -18,22 +18,14 @@ public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     {
         TooltipManager.ConnectEvent(ref _event);
     }
-
+    
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _delayTween.Stop();
-        _event?.ShowTooltip(title, text);
+        TooltipStaticTrigger.HandleTooltipShow(_event, ref _delayTween, _title, _text);
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        _delayTween = PrimeTween.Tween.Delay(_event.delay).OnComplete(
-            () =>
-            {
-                _event?.HideTooltip();
-            }
-        );
+        TooltipStaticTrigger.HandleTooltipStop(_event, ref _delayTween);
     }
-
-
 }
 }

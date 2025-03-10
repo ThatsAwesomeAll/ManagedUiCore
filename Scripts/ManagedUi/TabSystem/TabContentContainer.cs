@@ -20,10 +20,10 @@ public class TabContentContainer : MonoBehaviour
 
     [SerializeField] private TabHolder tabHolder;
     [SerializeField] private TabHeader header;
-    public TabHeader Header => header;
     public Action<ManagedTab> onSeletedTabChanged;
 
     private ManagedTab _currentTab;
+    public ManagedTab CurrentTab => _currentTab;
 
     private void OnEnable()
     {
@@ -35,6 +35,7 @@ public class TabContentContainer : MonoBehaviour
         header.OnTabSelected += SelectTab;
         _currentTab = tabHolder.GetCurrentTab();
         header.SetCurrentTab(_currentTab);
+        onSeletedTabChanged?.Invoke(_currentTab);
     }
 
     private void OnDisable()

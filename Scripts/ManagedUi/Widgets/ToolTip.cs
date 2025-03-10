@@ -1,7 +1,6 @@
 ﻿using ManagedUi.Settings;
 using ManagedUi.Tooltip;
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -66,8 +65,8 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _disablePosition = true;
         var target = source.transform.position;
         target.x += source.pivot.x*source.rect.width;
-        target.y += source.pivot.y*source.rect.height;
-        SetPosition(source.transform.position);
+        target.y += _rectTransform.rect.height*0.5f;
+        SetPosition(target);
     }
 
     private void SetPosition(Vector3 targetPosition)

@@ -205,6 +205,7 @@ public class TabHeader : MonoBehaviour
         button.Image.ConfirmColor = new ManagedColor(UiSettings.ColorName.Accent);
         button.transform.SetSiblingIndex(tab.OrderIndex);
         button.Image.growth = new Vector2Int(3, 3);
+        button.SetUp();
         button.Selectable.OnConfirmed += parent =>
         {
             TabSelected(tab);
@@ -246,6 +247,7 @@ public class TabHeader : MonoBehaviour
     public void SetCurrentTab(ManagedTab managedTab)
     {
         currentTab = managedTab;
+        TabSelected(managedTab);
     }
 }
 }

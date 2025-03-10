@@ -34,7 +34,7 @@ public class TabManager : MonoBehaviour
         _gridSelection = GetComponent<GridSelection>();
         Content ??= GetComponent<TabContentContainer>();
         Content.onSeletedTabChanged += UpdateGrid;
-        
+        _currentTab = Content.CurrentTab;
         _gridSelection.SetupGrid(true);
     }
     

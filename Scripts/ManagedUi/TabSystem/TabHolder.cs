@@ -45,11 +45,12 @@ public class TabHolder : MonoBehaviour
     {
         if (!_currentTab)
         {
-            var currentIndex = int.MinValue;
+            var currentIndex = int.MaxValue;
             foreach (var tab in _tabs)
             {
-                if (tab.OrderIndex > currentIndex)
+                if (tab.OrderIndex < currentIndex)
                 {
+                    currentIndex = tab.OrderIndex;
                     _currentTab = tab;
                 }
             }

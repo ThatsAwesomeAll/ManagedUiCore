@@ -31,18 +31,20 @@ public class TooltipStaticTrigger : MonoBehaviour
     public static void HandleTooltipStop(TooltipEvent tooltipEvent, ref PrimeTween.Tween delayTween, bool forceShutdown = false)
     {
         delayTween.Stop();
-        float delay = tooltipEvent.delay;
         TooltipEvent.TooltipTriggerSender triggerType = TooltipEvent.TooltipTriggerSender.Default;
         if (forceShutdown)
         {
-            delay = 0;
             triggerType = TooltipEvent.TooltipTriggerSender.ForceClose;
+            tooltipEvent?.HideTooltip(triggerType);
         }
-        delayTween = PrimeTween.Tween.Delay(delay).OnComplete(
-            () =>
-            {
-                tooltipEvent?.HideTooltip(triggerType);
-            });
+        else
+        {
+            delayTween = PrimeTween.Tween.Delay(tooltipEvent.delay).OnComplete(
+                () =>
+                {
+                    tooltipEvent?.HideTooltip(triggerType);
+                });
+        }
     }
     public static void HandleTooltipShow(TooltipEvent tooltipEvent, ref PrimeTween.Tween delayTween, string title, string text)
     {

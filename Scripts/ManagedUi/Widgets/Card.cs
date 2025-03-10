@@ -20,9 +20,7 @@ public class Card : MonoBehaviour
     public string Title = "Card Title";
     public string Text = "This should be some text. Try things out. Get wrapped. Long Long Longer.";
     public Sprite Image;
-    public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.Dark;
-    public UiSettings.ColorName TitleColor = UiSettings.ColorName.Dark;
-    public UiSettings.ColorName TextColor = UiSettings.ColorName.Dark;
+    public UiSettings.ColorName BackgroundTheme = UiSettings.ColorName.Light;
 
     [Header("UI Elements")]
     [SerializeField] ManagedImage _imageHolder;
@@ -70,8 +68,8 @@ public class Card : MonoBehaviour
         _textTextBox.SetTextWithTranslation(Text);
         _titleTextBox.SetTextWithTranslation(Title);
         _background.BasicColor.SetColorByTheme(BackgroundTheme,_manager);
-        _textTextBox.SetBasicColorTheme(TextColor);
-        _titleTextBox.SetBasicColorTheme(TitleColor);
+        _textTextBox.SetBasicColorTheme(BackgroundTheme);
+        _titleTextBox.SetBasicColorTheme(BackgroundTheme);
     }
 
     private void SetupSelectionAnimation()
@@ -114,12 +112,12 @@ public class Card : MonoBehaviour
         }
         if (!_titleTextBox)
         {
-            _titleTextBox = CreateText("Title", Title, TextSettings.TextStyle.Highlight, TitleColor);
+            _titleTextBox = CreateText("Title", Title, TextSettings.TextStyle.Highlight, BackgroundTheme);
             _titleTextBox.transform.SetAsLastSibling();
         }
         if (!_textTextBox)
         {
-            _textTextBox = CreateText("Text", Text, TextSettings.TextStyle.Text, TextColor);
+            _textTextBox = CreateText("Text", Text, TextSettings.TextStyle.Text, BackgroundTheme);
             _textTextBox.transform.SetAsLastSibling();
         }
     }
@@ -143,7 +141,7 @@ public class Card : MonoBehaviour
         {
             _background = CreateImage("Background", transform);
             _background.FixColor = true;
-            _background.ColorTheme = UiSettings.ColorName.Light;
+            _background.ColorTheme = BackgroundTheme;
             var layout = _background.gameObject.AddComponent<GrowGridLayout>();
             layout.spacing = new Vector2(0, 5);
             layout.padding.top = layout.padding.left = layout.padding.right = 20;

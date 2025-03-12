@@ -30,7 +30,11 @@ public class UiInputManager : MonoBehaviour
         var navigate = InputSystem.actions.FindAction("Navigate");
         navigate.performed += context => OnNavigate(context.ReadValue<Vector2>());
         var confirmed = InputSystem.actions.FindAction("Submit");
-        confirmed.performed += context => OnConfirm?.Invoke();
+        confirmed.performed += OnConfirmedUiBinding;
+    }
+    private void OnConfirmedUiBinding(InputAction.CallbackContext obj)
+    {
+        OnConfirm?.Invoke();
     }
 
     private void OnNavigate(Vector2 direction)

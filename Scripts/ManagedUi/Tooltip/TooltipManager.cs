@@ -1,12 +1,15 @@
 ﻿using ManagedUi.ResourcesLoader;
 using ManagedUi.Widgets;
+using MathUtils;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
 namespace ManagedUi.Tooltip
 {
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(Canvas))]
 [RequireComponent(typeof(GraphicRaycaster))]
 public class TooltipManager : MonoBehaviour
@@ -35,7 +38,6 @@ public class TooltipManager : MonoBehaviour
             _raycaster.enabled = false;
         }
     }
-
 
     private void OnDisable()
     {

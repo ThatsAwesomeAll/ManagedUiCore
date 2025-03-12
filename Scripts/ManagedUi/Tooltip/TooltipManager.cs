@@ -1,10 +1,6 @@
 ﻿using ManagedUi.ResourcesLoader;
 using ManagedUi.Widgets;
-using MathUtils;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Users;
-using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UI;
 
 namespace ManagedUi.Tooltip

@@ -53,10 +53,6 @@ public class SimpleButton : MonoBehaviour, IManagedGridLayoutElement
     public void RefreshButton()
     {
         SetText();
-        if (_manager && autoFormat)
-        {
-            _image.sprite = _manager.DefaultBackgroundImage();
-        }
     }
 
     protected void Awake()

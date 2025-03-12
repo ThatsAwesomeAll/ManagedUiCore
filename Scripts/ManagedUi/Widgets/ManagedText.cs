@@ -87,11 +87,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     
     public void SetTextWithTranslation(string text)
     {
-        if (!_text) return;
-        if (string.IsNullOrEmpty(text))
-        {
-            return;
-        }
+        if (!_text || text == null) return;
         _text.text = text;
         _manualText = text;
         if (string.IsNullOrEmpty(text))

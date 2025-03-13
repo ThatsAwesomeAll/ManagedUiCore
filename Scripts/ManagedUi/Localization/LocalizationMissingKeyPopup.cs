@@ -16,17 +16,14 @@ public class LocalizationMissingKeyPopup : EditorWindow
 
     public static void ShowPopup(string key, string tablename, string[] languages, Action<string[]> onConfirm)
     {
-        LocalizationMissingKeyPopup window = GetWindow<LocalizationMissingKeyPopup>("Translate key: "+key);
+        LocalizationMissingKeyPopup window = CreateInstance<LocalizationMissingKeyPopup>();
+        window.titleContent = new GUIContent("Translate key: " + key); // Optional: Give each instance a title
         window.minSize = new Vector2(500, 400);
         window.onConfirmCallback = onConfirm;
         window.languages = (string[])languages.Clone(); // Clone to avoid modifying the original array
         window.key = key;
         window.tablename = tablename;
-        foreach (string lang in languages)
-        {
-            window.newEntries.Add(key);
-        } 
-        window.Show();
+        window.ShowPopup();
     }
 
     private void OnGUI()

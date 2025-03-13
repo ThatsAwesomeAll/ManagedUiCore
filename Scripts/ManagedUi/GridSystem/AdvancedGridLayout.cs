@@ -17,7 +17,7 @@ public class AdvancedGridLayout : LayoutGroup
     }
 
     [Header("GridStyle")]
-    public Vector2 spacing;
+    public Vector2 spacing = new Vector2(20,20);
 
     public LayoutFocus priority;
 
@@ -28,7 +28,15 @@ public class AdvancedGridLayout : LayoutGroup
     public bool fitY;
     public Vector2 cellSize;
 
-
+    protected override void Awake()
+    {
+        base.Awake();
+        padding.left = 20;
+        padding.right = 20;
+        padding.top = 20;
+        padding.bottom = 20;
+    }
+    
     public override void CalculateLayoutInputHorizontal()
     {
         base.CalculateLayoutInputHorizontal();

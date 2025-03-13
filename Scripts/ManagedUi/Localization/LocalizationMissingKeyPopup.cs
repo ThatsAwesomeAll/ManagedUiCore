@@ -53,19 +53,22 @@ public class LocalizationMissingKeyPopup : EditorWindow
         GUILayout.Space(10);
         GUILayout.BeginHorizontal();
         bool close = false;
+        bool confirmed = false;
         if (GUILayout.Button("Confirm"))
         {
+            confirmed = true;
             close = true;
-            onConfirmCallback?.Invoke(newEntries.ToArray()); // Ensure the updated values are returned
         }
         if (GUILayout.Button("Cancel"))
         {
+            confirmed = false;
             close = true;
         }
         GUILayout.EndHorizontal();
         if (close)
         {
             Close();
+             if (confirmed) onConfirmCallback?.Invoke(newEntries.ToArray()); // Ensure the updated values are returned
         }
     }
 }

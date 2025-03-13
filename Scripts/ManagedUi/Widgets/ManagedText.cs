@@ -1,6 +1,8 @@
 using ManagedUi.Localization;
 using ManagedUi.Selectables;
 using ManagedUi.Settings;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -38,10 +40,10 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     public LocalizationType.Table localizationType = LocalizationType.Table.UIMenu;
     [SerializeField] private TextSettings.TextStyle _textStyle;
     public TextSettings.TextStyle TextStyle => _textStyle;
-    
+
     [SerializeField] private string _manualText;
     public string Text => _manualText;
-    
+
     private ColorAnimation _colorAnimation;
     private Color _animationSavedColor;
     private Vector3 _savedSize;
@@ -84,7 +86,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         SetTextWithTranslation(_manualText);
         _text.SetAllDirty();
     }
-    
+
     public void SetTextWithTranslation(string text)
     {
         if (!_text || text == null) return;
@@ -95,7 +97,21 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
             return;
         }
         _text.spriteAsset = _manager.SpriteAsset;
-        _text.text = LocalizationProvider.GetTranslatedValue(text, LocalizationType.GetTableFileName(localizationType));
+
+        string translatedText = FilterForTranslation(text);
+
+        _text.text = translatedText;
+    }
+    private string FilterForTranslation(string text)
+    {
+        string pattern = @"\$(.*?)\$"; // Matches exactly "$XXXXXX$"
+        foreach (Match match in Regex.Matches(text, pattern))
+        {
+            string translatedSubstring = 
+                LocalizationProvider.GetTranslatedValue(match.Value, LocalizationType.GetTableFileName(localizationType));
+            text = text.Replace(match.Value, translatedSubstring);
+        }
+        return text;
     }
 
     public void SetBasicColorTheme(UiSettings.ColorName textColor)
@@ -113,7 +129,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         _text.color = basicColor.SetColorByTheme(theme, _manager, true);
         _manager.SetTextAutoFormat(_text, style);
     }
-    
+
     public void Format(UiSettings.ColorName theme)
     {
         _backgroundTheme = theme;
@@ -167,7 +183,7 @@ public class ManagedTextEditor : Editor
         var UIManagerAsset = serializedObject.FindProperty("_manager");
         var localizationType = serializedObject.FindProperty("localizationType");
         var _manualText = serializedObject.FindProperty("_manualText");
-        
+
         var animationEnabled = serializedObject.FindProperty("animationEnabled");
 
         var basicColor = serializedObject.FindProperty("basicColor");

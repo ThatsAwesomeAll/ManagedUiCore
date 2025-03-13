@@ -1,7 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 #if USE_LOCALIZATION
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.Localization;
+using UnityEngine.Localization.Tables;
+#endif
 #endif
 
 namespace ManagedUi.Localization
@@ -25,14 +32,71 @@ public static class LocalizationProvider
         {
             return key;
         }
-        if (!IsLocalizedKeyAvailable(tableName, key)) return "KEY N/A: $" + key + "$";
-        
+        if (!IsLocalizedKeyAvailable(tableName, key))
+        {
+#if UNITY_EDITOR
+            List<string> languages = new List<string>();
+            foreach (var localization in LocalizationSettings.AvailableLocales.Locales)
+            {
+                languages.Add(localization.Identifier.ToString());
+            }
+            LocalizationMissingKeyPopup.ShowPopup(key, tableName, languages.ToArray(),(newentries)=> OnConfirm(newentries, tableName, key, languages));
+#endif
+            return "KEY N/A: " + key;
+        }
+
         var myLocalizedString = new LocalizedString(tableName, key);
         return myLocalizedString.GetLocalizedString();
 #else
         return key;
 #endif
     }
+
+    private static void OnConfirm(string[] newEntries, string tableName, string key, List<string> languages)
+    {
+#if USE_LOCALIZATION
+        int iEntry = 0;
+        foreach (var entry in newEntries)
+        {
+            AddEntryToLocalizationTable(tableName, key, languages[iEntry], entry);
+            iEntry++;
+        }
+#endif
+    }
+
+#if USE_LOCALIZATION
+    public static void AddEntryToLocalizationTable(string tableName, string key, string language, string value)
+    {
+        var collection = LocalizationEditorSettings.GetStringTableCollection(tableName);
+        if (collection == null)
+        {
+            Debug.LogError($"String Table '{tableName}' not found.");
+            return;
+        }
+
+        // Add entry if it doesn't exist
+        if (collection.SharedData.GetEntry(key) == null)
+        {
+            collection.SharedData.AddKey(key);
+        }
+        // Find the specific language table
+        StringTable targetTable = collection.StringTables.FirstOrDefault(table =>
+        {
+            Debug.Log(table.LocaleIdentifier);
+            return table.LocaleIdentifier.ToString().Contains(language);
+        });
+        
+        if (targetTable == null)
+        {
+            Debug.LogError($"Locale '{language}' not found in table '{tableName}'.");
+            return;
+        }
+
+        // Add or update entry
+        targetTable.AddEntry(key, value);
+        EditorUtility.SetDirty(targetTable); // Mark table as changed
+    }
+#endif
 
     static bool IsLocalizedKeyAvailable(string tableName, string key)
     {
@@ -44,7 +108,7 @@ public static class LocalizationProvider
         return false;
 #endif
     }
-    
+
 #if USE_LOCALIZATION
     private static void LocaleChanged(Locale locale)
     {

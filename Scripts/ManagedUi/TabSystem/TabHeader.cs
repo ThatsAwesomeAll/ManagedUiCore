@@ -87,13 +87,13 @@ public class TabHeader : MonoBehaviour
         }
         if (!_right)
         {
-            _right = CreateControlButton(C_buttonNameRight, "Right");
+            _right = CreateControlButton(C_buttonNameRight, "$Right$");
         }
         _right.Selectable.OnConfirmed -= SelectNext;
         _right.Selectable.OnConfirmed += SelectNext;
         if (!_left)
         {
-            _left = CreateControlButton(C_buttonNameLeft, "Left");
+            _left = CreateControlButton(C_buttonNameLeft, "$Left$");
         }
         _left.Selectable.OnConfirmed -= SelectPrev;
         _left.Selectable.OnConfirmed += SelectPrev;

@@ -39,6 +39,5 @@ public class EditorUtils
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
     }
 }
-
-#endif
 }
+#endif

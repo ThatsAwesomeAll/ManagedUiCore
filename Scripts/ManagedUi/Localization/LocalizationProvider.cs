@@ -52,19 +52,16 @@ public static class LocalizationProvider
 #endif
     }
 
+#if USE_LOCALIZATION && UNITY_EDITOR
     private static void OnConfirm(string[] newEntries, string tableName, string key, List<string> languages)
     {
-#if USE_LOCALIZATION
         int iEntry = 0;
         foreach (var entry in newEntries)
         {
             AddEntryToLocalizationTable(tableName, key, languages[iEntry], entry);
             iEntry++;
         }
-#endif
     }
-
-#if USE_LOCALIZATION
     public static void AddEntryToLocalizationTable(string tableName, string key, string language, string value)
     {
         var collection = LocalizationEditorSettings.GetStringTableCollection(tableName);

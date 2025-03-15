@@ -40,7 +40,7 @@ public static class LocalizationProvider
             {
                 languages.Add(localization.Identifier.ToString());
             }
-            LocalizationMissingKeyPopup.ShowPopup(key, tableName, languages.ToArray(),(newentries)=> OnConfirm(newentries, tableName, key, languages));
+            // LocalizationMissingKeyPopup.ShowPopup(key, tableName, languages.ToArray(),(newentries)=> OnConfirm(newentries, tableName, key, languages));
 #endif
             return "KEY N/A: " + key;
         }
@@ -64,6 +64,7 @@ public static class LocalizationProvider
     }
     public static void AddEntryToLocalizationTable(string tableName, string key, string language, string value)
     {
+        // return;
         var collection = LocalizationEditorSettings.GetStringTableCollection(tableName);
         if (collection == null)
         {

@@ -19,6 +19,8 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
 {
     [Header("Style")]
     public bool animationEnabled = false;
+    public bool useTextFixedColor = true;
+    public bool useAutoFormat = true;
 
     [SerializeField] private ManagedColor basicColor = new ManagedColor(UiSettings.ColorName.Background);
     [SerializeField] private ManagedColor selectColor = new ManagedColor(UiSettings.ColorName.Background);
@@ -55,7 +57,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     {
         if (_text != null)
         {
-            _text.color = basicColor.GetColor(_manager, true);
+            _text.color = basicColor.GetColor(_manager, useTextFixedColor);
         }
     }
 
@@ -117,7 +119,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     public void SetBasicColorTheme(UiSettings.ColorName textColor)
     {
         basicColor.SetFixedColor(true);
-        basicColor.SetColorByTheme(textColor, _manager, true);
+        basicColor.SetColorByTheme(textColor, _manager, useTextFixedColor);
         UpdateColor();
     }
 
@@ -126,17 +128,13 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
         _backgroundTheme = theme;
         _textStyle = style;
         if (!_text) return;
-        _text.color = basicColor.SetColorByTheme(theme, _manager, true);
-        _manager.SetTextAutoFormat(_text, style);
+        _text.color = basicColor.SetColorByTheme(theme, _manager, useTextFixedColor);
+        if (useAutoFormat) _manager.SetTextAutoFormat(_text, style);
     }
 
     public void Format(UiSettings.ColorName theme)
     {
-        _backgroundTheme = theme;
-        _textStyle = TextStyle;
-        if (!_text) return;
-        _text.color = basicColor.SetColorByTheme(theme, _manager, true);
-        _manager.SetTextAutoFormat(_text, TextStyle);
+        Format(theme, TextStyle);
     }
 
     public void SetEnabled(ISelectableAnimator.Mode mode, bool enableAnimation)
@@ -147,7 +145,7 @@ public class ManagedText : MonoBehaviour, ISelectableAnimator
     public void LerpTo(ISelectableAnimator.Mode mode, float currentValue)
     {
         if (!animationEnabled) return;
-        if (_text) _text.color = _colorAnimation.LerpTo(mode, currentValue, true);
+        if (_text) _text.color = _colorAnimation.LerpTo(mode, currentValue, useTextFixedColor);
     }
 
     void Awake()

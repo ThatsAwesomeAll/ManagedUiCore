@@ -1,2 +1,5 @@
-*.meta
 *.asset
+.idea/
+.DS_Store
+RiderScriptEditorPersistedState.asset
+Packages/packages-lock.json

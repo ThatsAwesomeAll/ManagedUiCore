@@ -15,10 +15,12 @@ Code for a managed UI System
 # Known issues
 * first compile fill fail due to dependencies
 
-# Planned features
+# Current features
 * Tab system
 * ManagedText
 * Localization integration
+
+# Planned features
 * Proper dependency management
 
 # Current Dependencies

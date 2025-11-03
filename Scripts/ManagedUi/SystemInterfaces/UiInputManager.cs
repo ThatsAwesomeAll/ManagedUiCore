@@ -6,7 +6,6 @@ namespace ManagedUi.SystemInterfaces
 {
 public class UiInputManager : MonoBehaviour
 {
-
     public enum Direction
     {
         Up,
@@ -14,7 +13,7 @@ public class UiInputManager : MonoBehaviour
         Left,
         Right
     }
-    
+
     public Action<Direction> OnMove;
 
     public Action OnConfirm;
@@ -28,10 +27,23 @@ public class UiInputManager : MonoBehaviour
     private void OnEnable()
     {
         var navigate = InputSystem.actions.FindAction("Navigate");
-        navigate.performed += context => OnNavigate(context.ReadValue<Vector2>());
+
+        if (navigate != null) navigate.performed += OnNavigatePerformed;
+
         var confirmed = InputSystem.actions.FindAction("Submit");
-        confirmed.performed += OnConfirmedUiBinding;
+        if (confirmed != null) confirmed.performed += OnConfirmedUiBinding;
     }
+
+    private void OnDisable()
+    {
+        var navigate = InputSystem.actions.FindAction("Navigate");
+        if (navigate != null) navigate.performed -= OnNavigatePerformed;
+        var confirmed = InputSystem.actions.FindAction("Submit");
+        if (confirmed != null) confirmed.performed -= OnConfirmedUiBinding;
+    }
+
+    void OnNavigatePerformed(InputAction.CallbackContext context) => OnNavigate(context.ReadValue<Vector2>());
+
     private void OnConfirmedUiBinding(InputAction.CallbackContext obj)
     {
         OnConfirm?.Invoke();
@@ -45,12 +57,13 @@ public class UiInputManager : MonoBehaviour
             _savedDirection = direction;
             return;
         }
+
         // check if we ever were navigating
         if (_savedDirection.magnitude < 0.5f)
         {
             return;
         }
-        
+
         // we stopped and want to set a value
         if (Mathf.Abs(_savedDirection.y) > Mathf.Abs(_savedDirection.x))
         {
@@ -74,8 +87,8 @@ public class UiInputManager : MonoBehaviour
                 OnMove?.Invoke(Direction.Left);
             }
         }
-        _savedDirection = Vector2.zero;
 
+        _savedDirection = Vector2.zero;
     }
 
     void Update()
@@ -84,6 +97,7 @@ public class UiInputManager : MonoBehaviour
         {
             RandomInput();
         }
+
         ;
     }
 
@@ -93,7 +107,7 @@ public class UiInputManager : MonoBehaviour
         {
             currentSecond++;
 
-            switch (currentSecond%10)
+            switch (currentSecond % 10)
             {
                 case 0:
                     OnMove?.Invoke(Direction.Left);
@@ -115,8 +129,5 @@ public class UiInputManager : MonoBehaviour
             }
         }
     }
-
-
-
 }
 }
